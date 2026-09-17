@@ -1,0 +1,176 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/greff-ai/dad-skills/main/skills/dad/settings.schema.json",
+  "title": "dad settings",
+  "description": "Settings for the dad workflow CLI. The top-level $schema value is dad's marker: the directory holding a settings.json carrying it is the dad directory.",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "description": "Must equal this schema's $id for the file to be recognised as dad's."
+    },
+    "git": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "mainBranch": {
+          "type": "string",
+          "minLength": 1,
+          "description": "The branch sprint PRs target."
+        }
+      }
+    },
+    "sprint": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "nameTemplate": {
+          "type": "string",
+          "description": "Tokens: {YYYY} {YY} {MM} {DD} {WW} {SPRINT_SHORT_NAME}."
+        },
+        "branchPrefix": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9._-]+/$",
+          "description": "Prefix of the sprint branch, including the trailing slash."
+        }
+      }
+    },
+    "tracker": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "provider": {
+          "enum": ["github", "linear", "jira"],
+          "description": "Which issue tracker backs this repo."
+        },
+        "columns": {
+          "type": "object",
+          "description": "Neutral status aliases mapped to this tracker's labels.",
+          "additionalProperties": { "type": "string" },
+          "properties": {
+            "new": { "type": "string" },
+            "ready": { "type": "string" },
+            "active": { "type": "string" },
+            "review": { "type": "string" },
+            "done": { "type": "string" }
+          }
+        },
+        "github": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "owner": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Owner of the repository that holds the issues."
+            },
+            "repo": { "type": "string", "minLength": 1 },
+            "projectOwner": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Defaults to owner."
+            },
+            "projectNumber": { "type": "integer", "minimum": 1 },
+            "statusField": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Defaults to Status."
+            },
+            "sprintField": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Defaults to Sprint."
+            }
+          }
+        },
+        "linear": {
+          "type": "object",
+          "additionalProperties": true
+        },
+        "jira": {
+          "type": "object",
+          "additionalProperties": true
+        }
+      }
+    },
+    "forge": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "provider": {
+          "enum": ["github"],
+          "description": "Which code host holds the branches and PRs."
+        },
+        "github": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "owner": { "type": "string" },
+            "repo": { "type": "string" }
+          }
+        }
+      }
+    },
+    "issueTypes": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "bug": { "$ref": "#/$defs/issueType" },
+        "feature": { "$ref": "#/$defs/issueType" },
+        "task": { "$ref": "#/$defs/issueType" },
+        "sprint": {
+          "type": "object",
+          "additionalProperties": false,
+          "description": "The sprint type has no branchPrefix: sprint branches come from sprint.branchPrefix.",
+          "properties": {
+            "label": { "type": "string" },
+            "releaseNotes": { "type": "boolean" }
+          }
+        }
+      }
+    },
+    "defaults": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "newIssueColumn": {
+          "type": "string",
+          "description": "The tracker.columns alias a freshly created issue lands in."
+        }
+      }
+    },
+    "commands": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "typecheck": { "type": "string" },
+        "test": { "type": "string" },
+        "e2e": { "type": "string" },
+        "lint": { "type": "string" }
+      }
+    },
+    "paths": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "openspec": { "type": "string" }
+      }
+    }
+  },
+  "$defs": {
+    "issueType": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "label": { "type": "string" },
+        "branchPrefix": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9._-]+/$",
+          "description": "Branch prefix for this issue type, including the trailing slash."
+        },
+        "releaseNotes": { "type": "boolean" }
+      }
+    }
+  }
+}

@@ -1,0 +1,50 @@
+{
+  "$schema": "https://raw.githubusercontent.com/greff-ai/dad-skills/main/skills/dad/settings.schema.json",
+  "git": {
+    "mainBranch": "main"
+  },
+  "sprint": {
+    "nameTemplate": "{YYYY}-{MM}-{DD}-{SPRINT_SHORT_NAME}",
+    "branchPrefix": "sprint/"
+  },
+  "tracker": {
+    "provider": "github",
+    "columns": {
+      "new": "Backlog",
+      "ready": "Ready",
+      "active": "In Progress",
+      "review": "In Review",
+      "done": "Done"
+    }
+  },
+  "forge": {
+    "provider": "github"
+  },
+  "issueTypes": {
+    "bug": {
+      "label": "bug",
+      "branchPrefix": "bug/",
+      "releaseNotes": true
+    },
+    "feature": {
+      "label": "feature",
+      "branchPrefix": "feat/",
+      "releaseNotes": true
+    },
+    "task": {
+      "label": "task",
+      "branchPrefix": "task/",
+      "releaseNotes": false
+    },
+    "sprint": {
+      "label": "sprint",
+      "releaseNotes": false
+    }
+  },
+  "defaults": {
+    "newIssueColumn": "new"
+  },
+  "paths": {
+    "openspec": "openspec"
+  }
+}
