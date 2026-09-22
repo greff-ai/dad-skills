@@ -1,6 +1,6 @@
 # dad
 
-Turn ideas into tested code, ready to review. Tell your agent:
+Dan's Agentic Development (DAD) is an agentic SDLC built on top of [OpenSpec](https://github.com/Fission-AI/OpenSpec)
 
 ```text
 /dad create a sprint pr with implementation of <description of issues or features>
@@ -8,14 +8,6 @@ Turn ideas into tested code, ready to review. Tell your agent:
 
 Dad creates issues, implements and tests each change, and brings completed work
 together on a sprint branch. You get a pull request to review and merge.
-
-## Features
-
-- Bugs, features, and tasks tracked in GitHub issues.
-- Sprint planning and execution with resumable progress.
-- OpenSpec proposals, implementation, and verification.
-- Pull requests with test summaries and supporting evidence.
-- Review feedback turned into tracked follow-up work.
 
 ## Example
 
@@ -27,6 +19,16 @@ started with one command:
 ```
 
 See the implementation in [sprint PR #18](https://github.com/greff-ai/benchmark-flappy-bird/pull/18).
+
+## Features
+
+- Every change has a GitHub issue and PR for a clear audit trail.
+- Choose automatic execution with a final PR for review, or run steps individually
+  to review and refine issues and sprint plans before implementation.
+- Supports large bugs or features that require multiple PRs
+- Specs maintained by your agent using the standard [OpenSpec](https://github.com/Fission-AI/OpenSpec) workflow.
+- Pull requests with test summaries and supporting evidence.
+- Easily update sprints with follow-up work discovered during review or testing.
 
 ## Dad Skills
 
@@ -65,4 +67,4 @@ Requires Node >=20.19.0, Git, an authenticated GitHub CLI with issue/project
 permissions, and OpenSpec >=1.13.0. Dad guides project configuration, test
 commands, and readiness checks.
 
-Release: 0.1.0+c59204bbca25
+Release: 0.2.0
