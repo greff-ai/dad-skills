@@ -1,80 +1,68 @@
 # dad
 
-Development workflows for an agent that supports Markdown skills: create
-issues, plan sprints, implement changes with OpenSpec, test, and open PRs.
+Turn ideas into tested code, ready to review. Tell your agent:
 
-Release: 0.1.0+6be375ddbfa1
+```text
+/dad create a sprint pr with implementation of <description of issues or features>
+```
+
+Dad creates issues, implements and tests each change, and brings completed work
+together on a sprint branch. You get a pull request to review and merge.
+
+## Features
+
+- Bugs, features, and tasks tracked in GitHub issues.
+- Sprint planning and execution with resumable progress.
+- OpenSpec proposals, implementation, and verification.
+- Pull requests with test summaries and supporting evidence.
+- Review feedback turned into tracked follow-up work.
+
+## Example
+
+[Flappy Bird with Three.js](https://github.com/greff-ai/benchmark-flappy-bird)
+started with one command:
+
+```text
+@dad-sprint create a flappy bird game with three.js
+```
+
+See the implementation in [sprint PR #18](https://github.com/greff-ai/benchmark-flappy-bird/pull/18).
+
+## Dad Skills
+
+Invoke individual skills for finer control of the workflow, including reviewing
+created issues before implementation. Use your agent's supported invocation syntax.
+
+| Skill | Result |
+| --- | --- |
+| dad | Route your request |
+| dad-issue, dad-bug, dad-feature, dad-task | Draft and file issues for review |
+| dad-sprint | Plan and run a sprint pr in one request |
+| dad-sprint-plan | Plan or extend a sprint before implementation |
+| dad-sprint-pr | Run or resume a planned sprint and open its PR |
+| dad-sprint-update | Address sprint review feedback through new issues |
 
 ## Install
 
-From your target repository, use npm's `npx` to install directly from GitHub
-with the [skills CLI](https://github.com/vercel-labs/skills):
+From your repository:
 
 ```sh
 npx skills@latest add https://github.com/greff-ai/dad-skills \
   --skill '*' --agent codex claude-code --copy
 ```
 
-This installs all nine dad skills for Codex and Claude in the current project.
-Remove either agent name to install for just one; add `--global` for a user-wide
-installation. `--copy` creates independent files, not symlinks. Keep `dad` and
-its wrappers installed together, and update only between active workflows.
-The GitHub distribution includes the built CLI; no manual clone or dad build
-is needed. Use `greff-ai/dad-skills`, not the `greff-ai/dad` source repository.
-
-The skills locate the payload through the host's skill metadata. Set
-`DAD_SKILL_DIR` to the installed `dad` directory for a custom layout.
-For globally installed OpenSpec workflows, set `DAD_SKILLS_DIR` to their
-containing skills directory when running setup.
+Installs all nine skills for Codex and Claude Code, with the CLI included.
+Keep the skills together and update between workflows. Add `--global` for a
+user-wide install.
 
 ## Project setup
 
-Ask your agent:
-
-> Setup dad in this repository using the installed `dad` skill. Follow
-> `references/shared/setup.md`, resolved relative to the directory containing
-> that skill's `SKILL.md`, not the repository root.
-
-Requires Node >=20.19.0, Git, the GitHub CLI with issue/project permissions,
-and OpenSpec >=1.13.0. The workflow covers OpenSpec initialization, GitHub
-project selection, labels/statuses, test commands, and readiness checks.
-
-For manual setup, complete the workflow's prerequisites, then run from the
-project root (replace the payload path and project number):
-
-```sh
-node <installed-dad>/scripts/dad.mjs init --tracker github --project <number>
+```text
+/dad setup this repository
 ```
 
-Configure the repository's actual test commands in `dad/settings.json` and
-resolve reported setup failures before starting work. Follow the workflow's
-remaining checks; the init command alone does not complete setup.
+Requires Node >=20.19.0, Git, an authenticated GitHub CLI with issue/project
+permissions, and OpenSpec >=1.13.0. Dad guides project configuration, test
+commands, and readiness checks.
 
-The work directory can be renamed. For a nested location, set `DAD_DIR`.
-GitHub is the implemented tracker; other provider names are reserved stubs.
-
-Init ignores the project ID cache and `sprint/` inside the work directory.
-Sprint ledgers, mirrors, and evidence are local working records; issues and
-PRs retain checkpoint state, test summaries, and published evidence. Existing
-tracked sprint files are not silently removed; migrate only after preserving
-their remote records. Product code and OpenSpec artifacts remain versioned.
-
-## Workflows
-
-Invoke these names using your agent's supported syntax:
-
-| Skill | Result |
-| --- | --- |
-| dad | Route a request |
-| dad-issue, dad-bug, dad-feature, dad-task | Draft and file a tracking issue |
-| dad-sprint-plan | Plan or extend sprint scope |
-| dad-sprint | Plan and run a sprint |
-| dad-sprint-pr | Run/resume issues and open the sprint PR |
-| dad-sprint-update | Address sprint feedback through new issues |
-
-The skills use sequential delegates when supported and otherwise run in the
-current context. No particular agent executable or model is required.
-
-Every code change has an issue. Completed leaf changes are archived before
-their PR merges into the container branch. Sprint PRs remain open for a human
-to merge, preserving issue commits with a merge commit.
+Release: 0.1.0+c59204bbca25
