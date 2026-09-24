@@ -57,6 +57,19 @@ Installs all nine skills for Codex and Claude Code, with the CLI included.
 Keep the skills together and update between workflows. Add `--global` for a
 user-wide install.
 
+## Update
+
+Between workflows, run the install command again from your project to refresh
+only the Dad skills from this GitHub repository:
+
+```sh
+npx skills@latest add https://github.com/greff-ai/dad-skills \
+  --skill '*' --agent codex claude-code --copy
+```
+
+Add `--global` if you originally installed Dad user-wide. The `skills update`
+command filters by skill name or install scope, not by source repository.
+
 ## Project setup
 
 ```text
@@ -67,4 +80,4 @@ Requires Node >=20.19.0, Git, an authenticated GitHub CLI with issue/project
 permissions, and OpenSpec >=1.13.0. Dad guides project configuration, test
 commands, and readiness checks.
 
-Release: 0.2.0
+Release: 0.3.0

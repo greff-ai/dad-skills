@@ -17,13 +17,18 @@ Read `references/shared/ledger.md`, `references/shared/cli.md`, and
    If any are not done, mark blocked by those keys, retaining the old halt
    and checkpoint, publish changed state, and continue.
 4. View the issue with comments. A missing/unreadable issue halts this row.
+   Read its current test plan from the container issue and published checkpoint
+   using `references/shared/test-plan.md`; require an exact row/branch match.
+   Preserve the latest operator-approved revision and its deferrals. Missing
+   or conflicting plan evidence halts the row before branching.
    Make the child directory, refresh issue.md preserving local audit additions,
    and record running. Publish the container checkpoint before branching.
 5. Dispatch a single-branch row to
    `references/issue/single-branch/pr.md`; dispatch a multi-branch row to
    `references/issue/multi-branch/bindings.md` only when permitted.
    Supply facts, issue key, row branch and dir, return/container branch, and
-   the container's parent branch. For a multi-branch child, its own container
+   the container's parent branch, current test plan, and approval/revision
+   evidence. For a multi-branch child, its own container
    branch is the row branch and its parent is this container.
    A retry also receives the exact halt, last completed token (none = empty),
    and known PR. Delegate when supported; otherwise run in this context.
@@ -31,6 +36,8 @@ Read `references/shared/ledger.md`, `references/shared/cli.md`, and
    Failure of either stops orchestration, because the next row shares this
    tree. An ordinary child halt only halts its row.
 7. Copy sub-step, PR, archive, warnings, and halt from the shared report.
+   Record actual checks and outstanding deferrals against the plan; a completed
+   child still reports deferred checks for the sprint gate.
    Confirm a reported success with merged PR evidence before marking done.
    When the PR is already merged, finish missing bookkeeping through the
    shared recovery path even if the child halted afterward.

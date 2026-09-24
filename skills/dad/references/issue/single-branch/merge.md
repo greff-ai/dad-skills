@@ -18,15 +18,24 @@ MAIN_BRANCH. Require a clean tree; preserve merge and archive evidence on retry.
 3. Merge origin/<container> into the child. On conflict, abort this merge,
    report the paths, and halt for manual resolution. Do not rebase, force-push,
    or auto-resolve conflicts. Confirm the base is now an ancestor.
-4. Run the full suite in a worker with gate merge and fix yes. Allow at most
+4. Reassess actual scope and coverage against the published step test plan in
+   `references/shared/test-plan.md`. If scope grew, record the higher default
+   gate before testing unless the operator explicitly approves a revised plan
+   for the expanded scope. Run tier planned-merge with gate merge and fix yes,
+   honoring the current approved checks and deferrals. Allow at most
    three rounds, reading earlier fix logs before another attempt.
    Minor in-scope failures may use the fix chain. A change to intended behavior
    or design is a major failure: append Merge issues, move the card to active,
    and halt. Never silently expand the issue to make tests pass.
-5. After repairs, reconcile artifacts and verify again before proceeding.
+5. After repairs, reassess scope and gate again, then reconcile artifacts and
+   verify. An expanded repair needs the higher default checks or an explicit
+   revised operator-approved plan.
    Refresh the open PR's test summary and changed evidence after the final
-   suite, preserving existing attachment URLs per the shared evidence guide.
-   Record merge-test only for a passing full suite on the current code/base.
+   planned gate, preserving existing attachment URLs per the shared evidence
+   guide. Append actual ran/passed/failed/deferred results against the plan to
+   the child issue and publish the checkpoint. Record merge-test only when
+   every current child check and required evidence passes on the current
+   code/base; deferred checks remain visible, never counted as passed.
    On retry, rerun whenever the base/code changed or the prior tested tree is
    uncertain.
 6. Archive the change on this branch, in this context, through

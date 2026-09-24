@@ -1,8 +1,9 @@
 # Plan a container
 
 Inputs: bootstrap facts, resolved bindings, and optional proposed scope.
-Use `references/shared/cli.md`, `references/shared/issue-body.md`, and
-`references/shared/ledger.md`. Stay in the caller's context.
+Use `references/shared/cli.md`, `references/shared/issue-body.md`,
+`references/shared/test-plan.md`, and `references/shared/ledger.md`.
+Stay in the caller's context.
 
 1. Require a clean tree on the container branch. Load the container issue
    with comments. Read defaults.newIssueColumn, paths.openspec, and each
@@ -23,6 +24,11 @@ Use `references/shared/cli.md`, `references/shared/issue-body.md`, and
    exists, to seed child descriptions. A child draft must satisfy its type's
    required sections. Ask the user when allowed; otherwise return QUESTION.
    Do not quietly omit an unfileable milestone and merge the remaining scope.
+   Require a visible test plan for every row before its branch starts. For an
+   unstarted legacy row without a plan, draft and publish its default plan
+   before dispatch. Map expected scope to risk; preserve operator-approved
+   revisions. Unclear scope or conflicting plans halt planning rather than
+   silently applying the full suite.
 5. Existing issue: view it, check type and parentage, and reuse it.
    Missing issue: create it using separate title/body files and its type.
    For parent bindings pass the parent key at creation. Retain a returned
@@ -40,6 +46,8 @@ Use `references/shared/cli.md`, `references/shared/issue-body.md`, and
    use `dad branch name`. Refuse branch/change-slug collisions and choose a
    distinct meaningful slug before recording it. Derive dir by replacing the
    branch's slashes with hyphens below container-dir/issues.
+   Append the assigned key and exact branch to its test plan before dispatch;
+   preserve any approved checks and deferrals when resolving needs-issue rows.
 9. Resolve dependencies: explicit none = none; after refs = those earlier
    keys; absent entry = the binding default (none or previous row). Reject
    unknown/forward references and cycles. Never treat explicit none as omitted.
@@ -48,6 +56,7 @@ Use `references/shared/cli.md`, `references/shared/issue-body.md`, and
     CONFLICT. A binding with children-may-be-containers no rejects multi-branch
     children; it never silently selects a leaf for them.
 11. Append complete keyed rows to the local ledger. Mirror the container issue
-    and publish its checkpoint before execution; do not commit sprint files.
+    and publish its checkpoint, including current test-plan identities, before
+    execution; do not commit sprint files.
     Report added/retained rows, links, and warnings. A planning
     failure prevents execution/merge of an incomplete decomposition.

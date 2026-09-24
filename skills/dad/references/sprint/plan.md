@@ -13,6 +13,9 @@ Start with `references/shared/bootstrap.md`; commands and bodies are in
    and single-/multi-branch size. Existing parents stay parents; do not adopt
    a sub-issue as an independent sprint item without resolving its parent.
    Reject duplicate keys and contradictory selections.
+   Draft a per-step test plan with `references/shared/test-plan.md`, mapping
+   actual project coverage to each expected scope and risk. Include it in the
+   sprint plan shown to the operator before issue creation.
 3. New sprint: ask for a short name (or confirm a proposed one), capture the
    current local date once, and use `dad sprint name` with that date.
    Show the resulting name and plan before creating the sprint issue.
@@ -21,7 +24,7 @@ Start with `references/shared/bootstrap.md`; commands and bodies are in
 4. New sprint: create its canonical sprint body and title through files,
    type sprint. Record Name/Created and mark unfiled items needs issue.
    Existing sprint: append a complete scope/plan block for new items,
-   preserving prior scope and omitting duplicate additions.
+   including test plans, preserving prior scope and omitting duplicate additions.
 5. Relate existing member issues to the sprint with `dad issue link`.
    Sprint membership is not parentage. Mirror the sprint field when supported;
    missing values warn, while other failures propagate. Do not create children

@@ -50,6 +50,11 @@ an archive path alone: it may have arrived in an unrelated merge.
 - A retry preserves sub-step, PR, archive, warnings, and halt. Blocking a
   previously halted row does not erase its resume evidence.
 - Publish changed state before dispatch using the checkpoint protocol below.
+  Include each row's current test-plan revision/source and outstanding
+  deferrals beside the fenced ledger in the published checkpoint, without
+  changing the ledger row format. The container issue's plan remains the
+  authority. On restore, compare both and halt on a conflict instead of
+  silently resetting an operator override to defaults.
   Sprint ledgers, mirrors, logs, and evidence stay ignored; never force-add them.
   Product code and OpenSpec artifacts still use scoped commits and pushes.
 
@@ -63,7 +68,9 @@ stops dispatch or merge; never treat an unpublished checkpoint as durable.
 
 Each child similarly checkpoints its own issue after every completed token and
 on halt: issue, branch, parent, directory, change slug, sub-step, PR, archive,
-warnings, halt, test/evidence URLs, and significant fix findings/decisions.
+warnings, halt, current test-plan revision/source, required/deferred checks,
+actual ran/passed/failed/deferred results, test/evidence URLs, and significant
+fix findings/decisions.
 Preserve prior comments. Before retrying a failed write, read comments and reuse
 an identical checkpoint already posted.
 
@@ -87,7 +94,10 @@ apply and later have completed tasks; archive has exactly one matching archive
 and no active change; merge has a confirmed merged PR with the expected head
 and base. A checkpoint is the last completed step, not the step that failed.
 Resume after it, verifying its evidence first. Re-run tests after code or base
-changes; do not treat an old test checkpoint as proof for a new tree.
+changes; do not treat an old test checkpoint as proof for a new tree. Re-read
+the current test plan and compare scope to the actual diff before reusing any
+test checkpoint; preserve an approved override, or apply the higher default
+after scope expansion until a revised plan is approved.
 
 ## Child report
 

@@ -14,8 +14,10 @@ latest matching comment on retry; a local mirror is never required on origin.
 ## Start or resume
 
 1. Require a clean tree on the container branch, which must not be MAIN_BRANCH.
-   Read required settings paths.openspec, commands.test, commands.e2e;
-   typecheck/lint are optional. The full tier must be configured before work.
+   Read required settings paths.openspec and the step's published test plan
+   using `references/shared/test-plan.md`. Require the commands/coverage named
+   for this child's checks before work; the sprint's full tier is checked by
+   its final gate. Preserve explicit operator-approved deferrals on resume.
 2. Parse the supplied branch and view the issue. Its key (case-insensitive)
    and type must match. For a fresh row require an open issue not already done.
    The ledger owns sprint membership; a differing tracker sprint is a warning.
@@ -45,7 +47,8 @@ apply from scratch when their evidence exists.
    change name. Follow `references/shared/openspec-flow.md`; unanswered
    questions halt. Check branch/cleanliness and committed artifacts.
 2. Apply in a separate worker. Check that all change tasks are complete.
-3. Test in a worker using `references/shared/test.md`, tier unit, fix yes.
+3. Test in a worker using `references/shared/test.md`, tier
+   planned-implementation, fix yes. Record results against the current plan.
 4. Reconcile the actual implementation and fix records into the change's
    proposal/design/specs/tasks. Commit any corrections.
 5. Verify in a read-only worker. On critical findings run

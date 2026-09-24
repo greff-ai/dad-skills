@@ -41,7 +41,10 @@ Do not force-add ignored sprint files or silently untrack legacy directories.
 ## Sprint body
 
 Title = the recorded sprint name. Sections:
-`Goal`, `Scope`, `Plan`, `Out of scope`, `Sprint`.
+`Goal`, `Scope`, `Plan`, `Test plans`, `Out of scope`, `Sprint`.
+Use `references/shared/test-plan.md` for one visible plan per Plan step,
+including needs-issue steps. Later approved revisions are append-only and
+keyed to the same step; record actual results separately from planned checks.
 
 ```markdown
 ## Scope
@@ -53,6 +56,10 @@ Title = the recorded sprint name. Sections:
 1. <ref or planned title>: <goal>; none
 2. <ref or planned title>: <goal>; after <ref>
 
+## Test plans
+### Test plan: <ref or planned title>
+<fields from references/shared/test-plan.md>
+
 ## Sprint
 Name: <rendered name>
 Created: <local YYYY-MM-DD>
@@ -61,7 +68,7 @@ Created: <local YYYY-MM-DD>
 The first table cell is always the issue reference. Escape pipes/newlines in
 cells. Keep the name/date unchanged on re-planning. Append additions under
 `## Added after planning — <local date>`, with a complete five-column table
-and the new items' plan entries. Never append a bare table row or rewrite the
+and the new items' plan entries and test plans. Never append a bare table row or rewrite the
 original scope. Read plan entries in body order; the last entry for an item
 wins. Explicit `none` means no dependency; a missing entry uses the binding
 default.

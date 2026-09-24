@@ -17,6 +17,9 @@ commands and pass/fail/skip counts, limitations, and specific added regression
 tests with what each proves. A passing total alone is insufficient when new
 tests were added. Use `references/shared/evidence.md` when review evidence was
 captured; with none, publish only the summary. Do not generate a PDF.
+Child PRs compare actual results with the current step test plan and list
+deferred checks separately. Sprint PRs list each deferred check and the final
+suite or explicit final check that covered it; none may remain uncovered.
 
 ## Leaf
 

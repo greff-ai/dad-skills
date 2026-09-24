@@ -48,7 +48,8 @@ halt, resume token, and PR. Use `references/shared/cli.md` and
    Every child is single-branch and needs a complete typed issue body.
    Use the container's Goal, falling back to Summary.
 5. Produce the canonical five-column scope and ordered plan with an explicit
-   goal per item. Missing dependency entries default to the previous row;
+   goal and `references/shared/test-plan.md` test plan per item before any
+   sub-issue branch starts. Missing dependency entries default to the previous row;
    explicit none makes a milestone independent. Append the proposal once to
    the container issue before filing children. Unanswerable questions return
    QUESTION; never file an incomplete child or drop a milestone.
