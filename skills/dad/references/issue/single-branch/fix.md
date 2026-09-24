@@ -1,7 +1,7 @@
 # Plan a repair
 
 Inputs: readable failure log or verifier findings, change slug, gate
-test/verify/merge, failing tier, and level unit/full.
+test/verify/merge, failing tier, and the requested planned or unit/full level.
 Run in the current worker context; no delegation or commits here.
 
 1. Require concrete failure context and the active change directory.

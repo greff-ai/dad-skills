@@ -1,6 +1,7 @@
 # Verify a repair
 
-Inputs: existing fix file, level unit/full, and change slug.
+Inputs: existing fix file, requested planned or unit/full level, current plan
+when planned, and change slug.
 Stay in the same context. Do not commit, push, revert, or delegate.
 
 1. Run the requested tier using `references/shared/test.md` with fix no.

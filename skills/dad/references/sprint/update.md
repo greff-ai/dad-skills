@@ -17,15 +17,18 @@ explicit sprint key. Run in the coordinating conversation.
    `references/issue/create-common.md` with mode draft and size single-branch.
    Do not file yet. Scope needing a multi-branch decomposition returns
    OUT_OF_SCOPE pointing to sprint planning for this sprint.
-4. Show the drafts, original related issues, and thread-to-issue mapping;
+4. Show the drafts, per-step test plans, original related issues, and thread-to-issue mapping;
    wait for approval. Record any threads the user wants left open.
    On retry, first reuse existing update issues and ledger entries identified
    by the request/thread URLs; ambiguous matches require clarification.
 5. Checkout/fast-forward the sprint branch. File approved issues using title
    and body files. Save each returned key before any further write; partial
    failures resume that issue. Relate each to the sprint and any original
-   issue it changes. Append a canonical scope block and plan entries to the
-   sprint issue, including source thread URLs for future recovery.
+   issue it changes. Append a canonical scope block, plan entries, and
+   per-step test plans to the sprint issue before any child branch starts,
+   including source thread URLs for future recovery. Preserve approved
+   revisions to existing test plans; explicit operator changes are appended
+   per `references/shared/test-plan.md`.
 6. Mirror the sprint field when supported and refresh issue.md. Run
    `references/container/plan.md` to append ledger rows, preserving existing
    ones. Do not write code on the sprint branch.
