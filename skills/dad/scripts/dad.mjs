@@ -99,7 +99,7 @@ var require_code = __commonJS({
     }
     exports._ = _;
     var plus = new _Code("+");
-    function str2(strs, ...args) {
+    function str3(strs, ...args) {
       const expr = [safeStringify(strs[0])];
       let i = 0;
       while (i < args.length) {
@@ -110,7 +110,7 @@ var require_code = __commonJS({
       optimize(expr);
       return new _Code(expr);
     }
-    exports.str = str2;
+    exports.str = str3;
     function addCodeArg(code, arg) {
       if (arg instanceof _Code)
         code.push(...arg._items);
@@ -153,7 +153,7 @@ var require_code = __commonJS({
       return;
     }
     function strConcat(c1, c2) {
-      return c2.emptyStr() ? c1 : c1.emptyStr() ? c2 : str2`${c1}${c2}`;
+      return c2.emptyStr() ? c1 : c1.emptyStr() ? c2 : str3`${c1}${c2}`;
     }
     exports.strConcat = strConcat;
     function interpolate(x) {
@@ -1115,22 +1115,22 @@ var require_util = __commonJS({
       return (0, codegen_1._)`${topSchemaRef}${schemaPath}${(0, codegen_1.getProperty)(keyword)}`;
     }
     exports.schemaRefOrVal = schemaRefOrVal;
-    function unescapeFragment(str2) {
-      return unescapeJsonPointer(decodeURIComponent(str2));
+    function unescapeFragment(str3) {
+      return unescapeJsonPointer(decodeURIComponent(str3));
     }
     exports.unescapeFragment = unescapeFragment;
-    function escapeFragment(str2) {
-      return encodeURIComponent(escapeJsonPointer(str2));
+    function escapeFragment(str3) {
+      return encodeURIComponent(escapeJsonPointer(str3));
     }
     exports.escapeFragment = escapeFragment;
-    function escapeJsonPointer(str2) {
-      if (typeof str2 == "number")
-        return `${str2}`;
-      return str2.replace(/~/g, "~0").replace(/\//g, "~1");
+    function escapeJsonPointer(str3) {
+      if (typeof str3 == "number")
+        return `${str3}`;
+      return str3.replace(/~/g, "~0").replace(/\//g, "~1");
     }
     exports.escapeJsonPointer = escapeJsonPointer;
-    function unescapeJsonPointer(str2) {
-      return str2.replace(/~1/g, "/").replace(/~0/g, "~");
+    function unescapeJsonPointer(str3) {
+      return str3.replace(/~1/g, "/").replace(/~0/g, "~");
     }
     exports.unescapeJsonPointer = unescapeJsonPointer;
     function eachItem(xs, f) {
@@ -2155,8 +2155,8 @@ var require_json_schema_traverse = __commonJS({
         post(schema, jsonPtr, rootSchema, parentJsonPtr, parentKeyword, parentSchema, keyIndex);
       }
     }
-    function escapeJsonPtr(str2) {
-      return str2.replace(/~/g, "~0").replace(/\//g, "~1");
+    function escapeJsonPtr(str3) {
+      return str3.replace(/~/g, "~0").replace(/\//g, "~1");
     }
   }
 });
@@ -3253,10 +3253,10 @@ var require_utils = __commonJS({
         isIPV6: true
       };
     }
-    function findToken(str2, token) {
+    function findToken(str3, token) {
       let ind = 0;
-      for (let i = 0; i < str2.length; i++) {
-        if (str2[i] === token) ind++;
+      for (let i = 0; i < str3.length; i++) {
+        if (str3[i] === token) ind++;
       }
       return ind;
     }
@@ -4269,7 +4269,7 @@ var require_core = __commonJS({
     var util_1 = require_util();
     var $dataRefSchema = require_data();
     var uri_1 = require_uri();
-    var defaultRegExp = (str2, flags) => new RegExp(str2, flags);
+    var defaultRegExp = (str3, flags) => new RegExp(str3, flags);
     defaultRegExp.code = "new RegExp";
     var META_IGNORE_OPTIONS = ["removeAdditional", "useDefaults", "coerceTypes"];
     var EXT_SCOPE_NAMES = /* @__PURE__ */ new Set([
@@ -5064,16 +5064,16 @@ var require_ucs2length = __commonJS({
   "../../node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/runtime/ucs2length.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
-    function ucs2length(str2) {
-      const len = str2.length;
+    function ucs2length(str3) {
+      const len = str3.length;
       let length = 0;
       let pos = 0;
       let value;
       while (pos < len) {
         length++;
-        value = str2.charCodeAt(pos++);
+        value = str3.charCodeAt(pos++);
         if (value >= 55296 && value <= 56319 && pos < len) {
-          value = str2.charCodeAt(pos);
+          value = str3.charCodeAt(pos);
           if ((value & 64512) === 56320)
             pos++;
         }
@@ -7649,8 +7649,9 @@ var KEY_GRAMMARS = {
   },
   linear: {
     pattern: new RegExp(`^(${KEY_PATTERN.source})$`),
-    description: "a tracker key such as ENG-41",
-    body: KEY_PATTERN.source
+    description: "a tracker key such as ENG-41, in any letter case",
+    body: KEY_PATTERN.source,
+    canonical: (key) => key.toUpperCase()
   },
   jira: {
     pattern: new RegExp(`^(${KEY_PATTERN.source})$`),
@@ -7668,7 +7669,10 @@ function parseKey(provider, input) {
       { key: input, provider }
     );
   }
-  return matched[1];
+  return canonicalKey(provider, matched[1]);
+}
+function canonicalKey(provider, key) {
+  return KEY_GRAMMARS[provider].canonical?.(key) ?? key;
 }
 function formatRef(provider, key) {
   return provider === "github" ? `#${key}` : key;
@@ -7872,7 +7876,23 @@ var settings_schema_default = {
         },
         linear: {
           type: "object",
-          additionalProperties: true
+          additionalProperties: false,
+          properties: {
+            team: {
+              type: "string",
+              minLength: 1,
+              description: "The Linear team that holds the issues."
+            },
+            cycle: {
+              enum: ["none", "current"],
+              description: "Whether sprint work joins the team's current cycle. Defaults to none."
+            },
+            mcpUrl: {
+              type: "string",
+              pattern: "^https?://[^\\s/?#:]\\S*$",
+              description: "The Linear MCP server. Defaults to https://mcp.linear.app/mcp."
+            }
+          }
         },
         jira: {
           type: "object",
@@ -8854,12 +8874,8 @@ function checkTrackerAuth(provider, env, forgeAuth) {
   if (value !== void 0 && value !== "") {
     return okCheck("tracker-auth", `${variable} is set`, { variable });
   }
-  return failCheck(
-    "tracker-auth",
-    `${variable} is not set; export it \u2014 the ${provider} provider is a stub in this version, but its token is checked so the setup is complete`,
-    3 /* NOT_CONFIGURED */,
-    { variable }
-  );
+  const message = provider === "linear" ? `${variable} is not set; export a Linear API key` : `${variable} is not set; export it \u2014 the ${provider} provider is a stub in this version, but its token is checked so the setup is complete`;
+  return failCheck("tracker-auth", message, 3 /* NOT_CONFIGURED */, { variable });
 }
 
 // src/init/prompt.ts
@@ -9114,6 +9130,7 @@ function resolveInitDir(input) {
     nested: located.dadDir !== join5(repoRoot, basename(located.dadDir))
   };
 }
+var LINEAR_READY_COLUMN = "Todo";
 function minimalSettings(input) {
   const tracker = { provider: input.tracker };
   if (input.tracker === "github") {
@@ -9128,6 +9145,14 @@ function minimalSettings(input) {
     };
     if (github.projectOwner !== void 0) block["projectOwner"] = github.projectOwner;
     tracker["github"] = block;
+  }
+  if (input.tracker === "linear") {
+    const linear = input.linear;
+    if (linear === void 0) throw internal("the linear tracker needs a team");
+    const block = { team: linear.team };
+    if (linear.cycle !== void 0) block["cycle"] = linear.cycle;
+    tracker["linear"] = block;
+    tracker["columns"] = { ready: LINEAR_READY_COLUMN };
   }
   const settings = {
     $schema: SCHEMA_ID,
@@ -9176,236 +9201,6 @@ function writeNewSettings(dadDir, settings) {
   writeFileSync(file, renderSettings(settings));
   return file;
 }
-
-// src/tracker/project-ids.ts
-import { readFileSync as readFileSync5, writeFileSync as writeFileSync2 } from "node:fs";
-import { join as join6 } from "node:path";
-var PROJECT_IDS_FILE = "project-ids.json";
-function projectIdsPath(dadDir) {
-  return join6(dadDir, PROJECT_IDS_FILE);
-}
-var SPRINT_KINDS = ["single-select", "iteration", "none"];
-var SUB_ISSUE_MODES = ["native", "fallback"];
-function invalid(file, reason) {
-  return new DadError(
-    8 /* INVALID_CONFIG */,
-    `${file} is not a valid project-ids file: ${reason}`,
-    { file, reason }
-  );
-}
-function str(value) {
-  return typeof value === "string" && value !== "";
-}
-function validateGitHubIds(value, file) {
-  if (!isPlainObject(value)) throw invalid(file, 'the "github" block is missing');
-  const block = value;
-  for (const key of ["owner", "repo", "projectOwner", "projectId"]) {
-    if (!str(block[key])) throw invalid(file, `github.${key} must be a non-empty string`);
-  }
-  if (typeof block["projectNumber"] !== "number" || !Number.isInteger(block["projectNumber"])) {
-    throw invalid(file, "github.projectNumber must be an integer");
-  }
-  const status = block["statusField"];
-  if (!isPlainObject(status) || !str(status["name"]) || !str(status["id"])) {
-    throw invalid(file, "github.statusField must have a name and an id");
-  }
-  const options = status["options"];
-  if (!isPlainObject(options)) throw invalid(file, "github.statusField.options must be an object");
-  for (const [alias, option] of Object.entries(options)) {
-    if (!isPlainObject(option) || !str(option["id"]) || !str(option["name"])) {
-      throw invalid(file, `github.statusField.options.${alias} must have an id and a name`);
-    }
-  }
-  const sprint = block["sprintField"];
-  if (!isPlainObject(sprint) || !str(sprint["name"])) {
-    throw invalid(file, "github.sprintField must have a name");
-  }
-  if (!SPRINT_KINDS.includes(sprint["kind"])) {
-    throw invalid(file, `github.sprintField.kind must be one of ${SPRINT_KINDS.join(", ")}`);
-  }
-  const sprintId = sprint["id"];
-  if (sprintId !== null && !str(sprintId)) {
-    throw invalid(file, "github.sprintField.id must be a string or null");
-  }
-  if (!SUB_ISSUE_MODES.includes(block["subIssues"])) {
-    throw invalid(file, `github.subIssues must be one of ${SUB_ISSUE_MODES.join(", ")}`);
-  }
-  return value;
-}
-function validateProjectIds(value, file) {
-  if (!isPlainObject(value)) throw invalid(file, "the top level must be an object");
-  const provider = value["provider"];
-  if (!TRACKER_PROVIDERS.includes(provider)) {
-    throw invalid(file, `provider must be one of ${TRACKER_PROVIDERS.join(", ")}`);
-  }
-  if (!str(value["discoveredAt"])) {
-    throw invalid(file, "discoveredAt must be a non-empty string");
-  }
-  if (provider === "github") validateGitHubIds(value["github"], file);
-  return value;
-}
-function gitHubIds(ids, file) {
-  if (ids.github === void 0) throw invalid(file, 'the "github" block is missing');
-  return ids.github;
-}
-function stale(file, what, recorded, configured) {
-  return new DadError(
-    3 /* NOT_CONFIGURED */,
-    `${file} is stale: it records ${what} ${JSON.stringify(recorded)} but the settings say ${JSON.stringify(configured)}; run \`dad tracker discover\``,
-    { file, what, recorded, configured }
-  );
-}
-function checkFresh(ids, settings, file) {
-  const configuredProvider = trackerProvider(settings);
-  if (ids.provider !== configuredProvider) {
-    throw stale(file, "provider", ids.provider, configuredProvider);
-  }
-  if (ids.provider !== "github" || ids.github === void 0) return;
-  const pairs = [
-    ["tracker.github.owner", ids.github.owner, getPath(settings, "tracker.github.owner")],
-    ["tracker.github.repo", ids.github.repo, getPath(settings, "tracker.github.repo")],
-    [
-      "tracker.github.projectNumber",
-      ids.github.projectNumber,
-      getPath(settings, "tracker.github.projectNumber")
-    ]
-  ];
-  for (const [what, recorded, configured] of pairs) {
-    if (configured !== void 0 && configured !== recorded) {
-      throw stale(file, what, recorded, configured);
-    }
-  }
-}
-function readProjectIds(dadDir, settings) {
-  const file = projectIdsPath(dadDir);
-  let raw;
-  try {
-    raw = readFileSync5(file, "utf8");
-  } catch {
-    throw new DadError(
-      3 /* NOT_CONFIGURED */,
-      `${file} is missing; run \`dad tracker discover\` (or \`dad init\`)`,
-      { file }
-    );
-  }
-  let parsed;
-  try {
-    parsed = JSON.parse(raw);
-  } catch (thrown) {
-    throw invalid(file, thrown instanceof Error ? thrown.message : String(thrown));
-  }
-  const ids = validateProjectIds(parsed, file);
-  checkFresh(ids, settings, file);
-  return ids;
-}
-function writeProjectIds(dadDir, ids) {
-  const file = projectIdsPath(dadDir);
-  writeFileSync2(file, `${JSON.stringify(ids, null, 2)}
-`, "utf8");
-  return file;
-}
-
-// src/tracker/columns.ts
-function columnMap(settings) {
-  const columns = getPath(settings, "tracker.columns");
-  if (!isPlainObject(columns)) return {};
-  const map = {};
-  for (const [alias, label] of Object.entries(columns)) {
-    if (typeof label === "string") map[alias] = label;
-  }
-  return map;
-}
-function knownAliases(settings) {
-  return Object.keys(columnMap(settings));
-}
-function labelForAlias(alias, settings) {
-  const label = columnMap(settings)[alias];
-  if (label === void 0) {
-    const known = knownAliases(settings);
-    throw new DadError(
-      4 /* NOT_FOUND */,
-      `unknown column alias '${alias}'; known: ${known.length === 0 ? "(none)" : known.join(", ")}`,
-      { alias, known }
-    );
-  }
-  return label;
-}
-function sameLabel(a, b) {
-  return a.toLowerCase() === b.toLowerCase();
-}
-function resolveColumn(alias, settings, ids, dadDir = "") {
-  const label = labelForAlias(alias, settings);
-  const option = ids.github?.statusField.options[alias];
-  const where = dadDir === "" ? "project-ids.json" : projectIdsPath(dadDir);
-  if (option === void 0 || !sameLabel(option.name, label)) {
-    throw new DadError(
-      3 /* NOT_CONFIGURED */,
-      `column '${alias}' (${label}) is not in ${where}; run \`dad tracker discover\``,
-      { alias, label, recorded: option?.name ?? null }
-    );
-  }
-  return { alias, label, optionId: option.id };
-}
-function aliasForLabel(label, settings) {
-  for (const [alias, configured] of Object.entries(columnMap(settings))) {
-    if (sameLabel(configured, label)) return alias;
-  }
-  return null;
-}
-function newIssueColumn(settings) {
-  const value = getPath(settings, "defaults.newIssueColumn");
-  if (typeof value !== "string" || value === "") {
-    throw new DadError(
-      3 /* NOT_CONFIGURED */,
-      "no value for 'defaults.newIssueColumn'",
-      { path: "defaults.newIssueColumn" }
-    );
-  }
-  const known = knownAliases(settings);
-  if (!known.includes(value)) {
-    throw new DadError(
-      8 /* INVALID_CONFIG */,
-      `defaults.newIssueColumn: '${value}' is not a tracker.columns alias; known: ${known.join(", ")}`,
-      { path: "defaults.newIssueColumn", value, known }
-    );
-  }
-  return value;
-}
-
-// src/tracker/issue-types.ts
-function typeLabels(settings) {
-  const issueTypes = getPath(settings, "issueTypes");
-  if (!isPlainObject(issueTypes)) return {};
-  const map = {};
-  for (const [type, entry] of Object.entries(issueTypes)) {
-    if (!isPlainObject(entry)) continue;
-    const label = entry["label"];
-    if (typeof label === "string" && label !== "") map[type] = label;
-  }
-  return map;
-}
-function labelForType(type, settings) {
-  const label = typeLabels(settings)[type];
-  if (label === void 0) {
-    const known = Object.keys(typeLabels(settings));
-    throw new DadError(
-      2 /* USAGE */,
-      `unknown issue type '${type}'; known: ${known.length === 0 ? "(none)" : known.join(", ")}`,
-      { type, known }
-    );
-  }
-  return label;
-}
-function typeForLabels(labels, settings) {
-  const lowered = labels.map((label) => label.toLowerCase());
-  for (const [type, label] of Object.entries(typeLabels(settings))) {
-    if (lowered.includes(label.toLowerCase())) return type;
-  }
-  return null;
-}
-
-// src/tracker/github/transport.ts
-import { spawn as spawn3 } from "node:child_process";
 
 // src/core/retry.ts
 import { setTimeout as delay } from "node:timers/promises";
@@ -9497,7 +9292,776 @@ ${result.stderr}`,
   }
 }
 
+// src/mcp/sse.ts
+async function* readEventStream(chunks) {
+  const decoder = new TextDecoder();
+  let pending = "";
+  let data;
+  let afterCarriageReturn = false;
+  for await (const chunk of chunks) {
+    let text = decoder.decode(chunk, { stream: true });
+    if (text === "") continue;
+    if (afterCarriageReturn && text.startsWith("\n")) text = text.slice(1);
+    afterCarriageReturn = false;
+    pending += text;
+    let start = 0;
+    for (; ; ) {
+      const end = lineEnd(pending, start);
+      if (end === -1) break;
+      const line = pending.slice(start, end);
+      start = end + 1;
+      if (pending[end] === "\r") {
+        if (start === pending.length) afterCarriageReturn = true;
+        else if (pending[start] === "\n") start += 1;
+      }
+      if (line === "") {
+        if (data !== void 0) yield data.join("\n");
+        data = void 0;
+        continue;
+      }
+      const value = dataValue(line);
+      if (value !== void 0) (data ??= []).push(value);
+    }
+    pending = pending.slice(start);
+  }
+}
+function lineEnd(text, from) {
+  for (let index = from; index < text.length; index += 1) {
+    const char = text[index];
+    if (char === "\n" || char === "\r") return index;
+  }
+  return -1;
+}
+function dataValue(line) {
+  const colon = line.indexOf(":");
+  const field = colon === -1 ? line : line.slice(0, colon);
+  if (field !== "data") return void 0;
+  if (colon === -1) return "";
+  const value = line.slice(colon + 1);
+  return value.startsWith(" ") ? value.slice(1) : value;
+}
+
+// src/mcp/http.ts
+var MCP_PROTOCOL_VERSION = "2025-06-18";
+var DEFAULT_MCP_TIMEOUT_MS = 6e4;
+var MAX_TOOL_PAGES = 50;
+var JSON_TYPE = "application/json";
+var STREAM_TYPE = "text/event-stream";
+function failure(kind, message, httpStatus) {
+  return { ok: false, kind, message, ...httpStatus === void 0 ? {} : { httpStatus } };
+}
+function mediaType(header) {
+  return (header ?? "").split(";")[0]?.trim().toLowerCase() ?? "";
+}
+function parseJson(text) {
+  try {
+    return JSON.parse(text);
+  } catch {
+    return void 0;
+  }
+}
+function isResponseTo(message, id) {
+  return isPlainObject(message) && message["id"] === id && !("method" in message) && ("result" in message || "error" in message);
+}
+function stringMember(value, key) {
+  const member = isPlainObject(value) ? value[key] : void 0;
+  return typeof member === "string" ? member : void 0;
+}
+function rpcErrorText(error) {
+  const message = stringMember(error, "message");
+  if (message !== void 0 && message !== "") return message;
+  const code = isPlainObject(error) ? error["code"] : void 0;
+  return typeof code === "number" ? `JSON-RPC error ${code}` : "JSON-RPC error";
+}
+function networkFailure(url, thrown, timeoutMs) {
+  if (thrown instanceof Error && thrown.name === "TimeoutError") {
+    return failure("network", `no reply from ${url} within ${timeoutMs} ms`);
+  }
+  if (!(thrown instanceof Error)) {
+    return failure("network", `request to ${url} failed: ${String(thrown)}`);
+  }
+  const cause = thrown.cause;
+  const detail = cause instanceof Error ? cause.message || (cause.code ?? "") : "";
+  return failure(
+    "network",
+    `request to ${url} failed: ${thrown.message}${detail === "" ? "" : ` (${detail})`}`
+  );
+}
+async function httpFailure(response) {
+  let body = "";
+  try {
+    body = await response.text();
+  } catch {
+  }
+  const message = body.trim() === "" ? [`HTTP ${response.status}`, response.statusText].filter((part) => part !== "").join(" ") : body;
+  return failure("http", message, response.status);
+}
+async function discard(response) {
+  try {
+    await response.body?.cancel();
+  } catch {
+  }
+}
+async function* bodyChunks(body) {
+  const reader = body.getReader();
+  try {
+    for (; ; ) {
+      const chunk = await reader.read();
+      if (chunk.done) return;
+      yield chunk.value;
+    }
+  } finally {
+    await reader.cancel().catch(() => void 0);
+  }
+}
+async function readResponse(response, id, url) {
+  const type = mediaType(response.headers.get("content-type"));
+  if (type === JSON_TYPE) {
+    const message = parseJson(await response.text());
+    if (isResponseTo(message, id)) return { ok: true, value: message };
+    return failure(
+      "protocol",
+      `the MCP server at ${url} did not answer with a JSON-RPC response to request ${id}`
+    );
+  }
+  if (type === STREAM_TYPE) {
+    if (response.body !== null) {
+      for await (const data of readEventStream(bodyChunks(response.body))) {
+        const message = parseJson(data);
+        if (isResponseTo(message, id)) return { ok: true, value: message };
+      }
+    }
+    return failure("network", `the event stream from ${url} ended before the reply`);
+  }
+  await discard(response);
+  const what = type === "" ? "no content type" : `content type '${type}'`;
+  return failure("protocol", `the MCP server at ${url} answered with ${what}`);
+}
+function httpMcpTransport(server, env, options = {}) {
+  const timeoutMs = options.timeoutMs ?? DEFAULT_MCP_TIMEOUT_MS;
+  let endpoint;
+  let session;
+  let starting;
+  let lastId = 0;
+  const resolveEndpoint = () => {
+    if (endpoint !== void 0) return endpoint;
+    const variable = server.tokenVariable;
+    const key = env[variable];
+    if (key === void 0 || key === "") {
+      throw new DadError(
+        3 /* NOT_CONFIGURED */,
+        `${variable} is not set; export it to reach the MCP server at ${server.url}`,
+        { variable }
+      );
+    }
+    const authorization = `Bearer ${key}`;
+    try {
+      new Headers({ Authorization: authorization });
+    } catch {
+      throw new DadError(
+        3 /* NOT_CONFIGURED */,
+        `${variable} holds a character that cannot be sent in an HTTP header; export the key as issued`,
+        { variable }
+      );
+    }
+    let parsed;
+    try {
+      parsed = new URL(server.url);
+    } catch {
+      parsed = void 0;
+    }
+    if (parsed === void 0 || parsed.protocol !== "http:" && parsed.protocol !== "https:") {
+      throw new DadError(
+        8 /* INVALID_CONFIG */,
+        `the MCP server URL '${server.url}' is not an http or https URL`,
+        { url: server.url }
+      );
+    }
+    if (parsed.username !== "" || parsed.password !== "") {
+      throw new DadError(
+        8 /* INVALID_CONFIG */,
+        `the MCP server URL for ${parsed.host} carries credentials; remove them and use ${variable}`,
+        { host: parsed.host }
+      );
+    }
+    endpoint = { url: server.url, authorization };
+    return endpoint;
+  };
+  const serialize = (message) => {
+    try {
+      return JSON.stringify(message);
+    } catch (thrown) {
+      throw new DadError(
+        1 /* FAILURE */,
+        `the MCP request could not be written as JSON: ${thrown instanceof Error ? thrown.message : String(thrown)}`
+      );
+    }
+  };
+  const send = (target, current, body) => fetch(target.url, {
+    method: "POST",
+    headers: {
+      Authorization: target.authorization,
+      "Content-Type": JSON_TYPE,
+      Accept: `${JSON_TYPE}, ${STREAM_TYPE}`,
+      // Only `initialize` goes out before there is anything to echo.
+      ...current === void 0 ? {} : { "MCP-Protocol-Version": current.protocolVersion },
+      ...current?.sessionId === void 0 ? {} : { "Mcp-Session-Id": current.sessionId }
+    },
+    body,
+    signal: AbortSignal.timeout(timeoutMs)
+  });
+  const request = async (target, current, method, params) => {
+    lastId += 1;
+    const id = lastId;
+    let response;
+    let reply;
+    const body = serialize({
+      jsonrpc: "2.0",
+      id,
+      method,
+      ...params === void 0 ? {} : { params }
+    });
+    try {
+      response = await send(target, current, body);
+      if (!response.ok) return await httpFailure(response);
+      reply = await readResponse(response, id, target.url);
+    } catch (thrown) {
+      return networkFailure(target.url, thrown, timeoutMs);
+    }
+    if (!reply.ok) return reply;
+    const error = reply.value["error"];
+    if (error !== void 0) {
+      return failure(method === "tools/call" ? "tool" : "protocol", rpcErrorText(error));
+    }
+    const result = reply.value["result"];
+    if (!isPlainObject(result)) {
+      return failure(
+        "protocol",
+        `the MCP server at ${target.url} answered ${method} without a result object`
+      );
+    }
+    return { ok: true, value: { result, headers: response.headers } };
+  };
+  const notify = async (target, current, method) => {
+    try {
+      const response = await send(target, current, serialize({ jsonrpc: "2.0", method }));
+      if (!response.ok) return await httpFailure(response);
+      await discard(response);
+      return { ok: true, value: void 0 };
+    } catch (thrown) {
+      return networkFailure(target.url, thrown, timeoutMs);
+    }
+  };
+  const handshake = async (target) => {
+    const initialized = await request(target, void 0, "initialize", {
+      protocolVersion: MCP_PROTOCOL_VERSION,
+      capabilities: {},
+      clientInfo: { name: "dad", version: cliVersion() }
+    });
+    if (!initialized.ok) return initialized;
+    const { result, headers } = initialized.value;
+    const protocolVersion = result["protocolVersion"];
+    if (typeof protocolVersion !== "string" || protocolVersion === "") {
+      return failure(
+        "protocol",
+        `the MCP server at ${target.url} answered initialize without a protocolVersion`
+      );
+    }
+    const issued = headers.get("mcp-session-id");
+    const sessionId = issued === null || issued === "" ? void 0 : issued;
+    const established = {
+      protocolVersion,
+      sessionId,
+      info: {
+        protocolVersion,
+        name: stringMember(result["serverInfo"], "name"),
+        version: stringMember(result["serverInfo"], "version"),
+        sessionIssued: sessionId !== void 0
+      }
+    };
+    const notified = await notify(target, established, "notifications/initialized");
+    return notified.ok ? { ok: true, value: established } : notified;
+  };
+  const started = (target) => {
+    if (session !== void 0) return Promise.resolve({ ok: true, value: session });
+    starting ??= handshake(target).then((attempt) => {
+      if (attempt.ok) session = attempt.value;
+      return attempt;
+    }).finally(() => {
+      starting = void 0;
+    });
+    return starting;
+  };
+  return {
+    serverInfo: () => session?.info,
+    async listTools() {
+      const target = resolveEndpoint();
+      const current = await started(target);
+      if (!current.ok) return current;
+      const names = [];
+      let cursor;
+      for (let page = 1; page <= MAX_TOOL_PAGES; page += 1) {
+        const listed = await request(
+          target,
+          current.value,
+          "tools/list",
+          cursor === void 0 ? void 0 : { cursor }
+        );
+        if (!listed.ok) return listed;
+        const tools = listed.value.result["tools"];
+        if (!Array.isArray(tools)) {
+          return failure(
+            "protocol",
+            `the MCP server at ${target.url} answered tools/list without a tools array`
+          );
+        }
+        for (const tool of tools) {
+          const name = stringMember(tool, "name");
+          if (name === void 0) {
+            return failure(
+              "protocol",
+              `the MCP server at ${target.url} listed a tool without a name`
+            );
+          }
+          names.push(name);
+        }
+        const next = listed.value.result["nextCursor"];
+        if (typeof next !== "string" || next === "") return { ok: true, value: names };
+        cursor = next;
+      }
+      return failure(
+        "protocol",
+        `the MCP server at ${target.url} was still paging tools/list after ${MAX_TOOL_PAGES} pages`
+      );
+    },
+    async callTool(name, args) {
+      const target = resolveEndpoint();
+      const current = await started(target);
+      if (!current.ok) return { ...current, beforeCall: true };
+      const called = await request(target, current.value, "tools/call", {
+        name,
+        arguments: args
+      });
+      if (!called.ok) return called;
+      const content = called.value.result["content"];
+      if (!Array.isArray(content)) {
+        return failure(
+          "protocol",
+          `the MCP server at ${target.url} answered tools/call without a content array`
+        );
+      }
+      const text = content.map((item) => isPlainObject(item) && item["type"] === "text" ? item["text"] : void 0).filter((part) => typeof part === "string").join("");
+      return called.value.result["isError"] === true ? failure("tool", text) : { ok: true, value: text };
+    }
+  };
+}
+
+// src/mcp/transport.ts
+function mcpTransportFor(io, server) {
+  return io.mcp ?? httpMcpTransport(server, io.env);
+}
+var MCP_NOT_FOUND_PATTERN = /could not find/i;
+function classifyMcpFailure(failure2) {
+  if (failure2.kind === "network") return "transient";
+  if (failure2.kind !== "http" || failure2.httpStatus === void 0) return "failure";
+  if (failure2.httpStatus === 429) return "rate-limited";
+  return failure2.httpStatus >= 500 ? "transient" : "failure";
+}
+function keyRefused(variable, httpStatus) {
+  return new DadError(
+    3 /* NOT_CONFIGURED */,
+    `the MCP server refused the key in ${variable} (HTTP ${httpStatus}); check that it is valid and has access`,
+    { variable, httpStatus }
+  );
+}
+function toolsNotOffered(names) {
+  const quoted = names.map((name) => `'${name}'`).join(", ");
+  return new DadError(
+    7 /* UNSUPPORTED */,
+    `the MCP server does not offer the ${names.length === 1 ? "tool" : "tools"} ${quoted}`,
+    { tools: names }
+  );
+}
+function reportedFailure(text) {
+  const verbatim = { message: text, details: void 0 };
+  let parsed;
+  try {
+    parsed = JSON.parse(text);
+  } catch {
+    return verbatim;
+  }
+  if (!isPlainObject(parsed)) return verbatim;
+  const message = parsed["message"];
+  if (typeof message !== "string" || message.trim() === "") return verbatim;
+  return { message, details: { text } };
+}
+async function offersTool(transport, name) {
+  let listing;
+  try {
+    listing = await transport.listTools();
+  } catch {
+    return void 0;
+  }
+  return listing.ok ? listing.value.includes(name) : void 0;
+}
+async function toolFailure(failure2, call) {
+  const reported = reportedFailure(failure2.message);
+  if (MCP_NOT_FOUND_PATTERN.test(reported.message)) {
+    return new DadError(4 /* NOT_FOUND */, reported.message, reported.details);
+  }
+  if (await offersTool(call.transport, call.name) === false) {
+    return toolsNotOffered([call.name]);
+  }
+  return new DadError(1 /* FAILURE */, reported.message, reported.details);
+}
+function notRetried(failure2, call) {
+  return new DadError(
+    6 /* TRANSIENT */,
+    `the MCP tool '${call.name}' failed in transit and was not retried: it may or may not have been applied; check before repeating it
+${failure2.message}`,
+    {
+      tool: call.name,
+      retried: false,
+      applied: "unknown",
+      ...failure2.httpStatus === void 0 ? {} : { httpStatus: failure2.httpStatus }
+    }
+  );
+}
+async function underPolicy(op, options, call) {
+  const seen = {
+    value: void 0,
+    failure: void 0
+  };
+  const inDoubt = (failure2) => options.singleAttempt === true && call !== void 0 && failure2.beforeCall !== true && classifyMcpFailure(failure2) === "transient";
+  const classify = () => {
+    if (seen.failure === void 0 || inDoubt(seen.failure)) return "failure";
+    return classifyMcpFailure(seen.failure);
+  };
+  const attempt = async () => {
+    const result = await op();
+    if (result.ok) {
+      seen.value = { value: result.value };
+      return { ok: true, stdout: "" };
+    }
+    seen.failure = result;
+    return { ok: false, stderr: result.message, httpStatus: result.httpStatus };
+  };
+  try {
+    await withRetry(attempt, {
+      stderr: options.stderr,
+      classify,
+      ...options.sleep === void 0 ? {} : { sleep: options.sleep }
+    });
+  } catch (thrown) {
+    if (!(thrown instanceof DadError)) {
+      throw new DadError(
+        1 /* FAILURE */,
+        thrown instanceof Error ? thrown.message : String(thrown)
+      );
+    }
+    const failure2 = seen.failure;
+    if (failure2 === void 0 || thrown.code !== 1 /* FAILURE */) throw thrown;
+    if (call !== void 0 && inDoubt(failure2)) throw notRetried(failure2, call);
+    if (failure2.kind === "http" && (failure2.httpStatus === 401 || failure2.httpStatus === 403)) {
+      throw keyRefused(options.tokenVariable, failure2.httpStatus);
+    }
+    if (failure2.kind === "tool" && call !== void 0) throw await toolFailure(failure2, call);
+    throw thrown;
+  }
+  if (seen.value === void 0) {
+    throw new DadError(1 /* FAILURE */, "internal: the MCP call succeeded without a value");
+  }
+  return seen.value.value;
+}
+function listMcpTools(transport, options) {
+  return underPolicy(() => transport.listTools(), options);
+}
+function callMcpTool(transport, name, args, options) {
+  return underPolicy(() => transport.callTool(name, args), options, { transport, name });
+}
+async function requireMcpTools(transport, names, options) {
+  const offered = new Set(await listMcpTools(transport, options));
+  const missing2 = names.filter((name) => !offered.has(name));
+  if (missing2.length > 0) throw toolsNotOffered(missing2);
+}
+
+// src/tracker/project-ids.ts
+import { readFileSync as readFileSync5, writeFileSync as writeFileSync2 } from "node:fs";
+import { join as join6 } from "node:path";
+var PROJECT_IDS_FILE = "project-ids.json";
+function projectIdsPath(dadDir) {
+  return join6(dadDir, PROJECT_IDS_FILE);
+}
+var GITHUB_SPRINT_KINDS = [
+  "single-select",
+  "iteration",
+  "none"
+];
+var SUB_ISSUE_MODES = ["native", "fallback"];
+function invalid(file, reason) {
+  return new DadError(
+    8 /* INVALID_CONFIG */,
+    `${file} is not a valid project-ids file: ${reason}`,
+    { file, reason }
+  );
+}
+function str(value) {
+  return typeof value === "string" && value !== "";
+}
+function validateGitHubIds(value, file) {
+  if (!isPlainObject(value)) throw invalid(file, 'the "github" block is missing');
+  const block = value;
+  for (const key of ["owner", "repo", "projectOwner", "projectId"]) {
+    if (!str(block[key])) throw invalid(file, `github.${key} must be a non-empty string`);
+  }
+  if (typeof block["projectNumber"] !== "number" || !Number.isInteger(block["projectNumber"])) {
+    throw invalid(file, "github.projectNumber must be an integer");
+  }
+  const status = block["statusField"];
+  if (!isPlainObject(status) || !str(status["name"]) || !str(status["id"])) {
+    throw invalid(file, "github.statusField must have a name and an id");
+  }
+  const options = status["options"];
+  if (!isPlainObject(options)) throw invalid(file, "github.statusField.options must be an object");
+  for (const [alias, option] of Object.entries(options)) {
+    if (!isPlainObject(option) || !str(option["id"]) || !str(option["name"])) {
+      throw invalid(file, `github.statusField.options.${alias} must have an id and a name`);
+    }
+  }
+  const sprint = block["sprintField"];
+  if (!isPlainObject(sprint) || !str(sprint["name"])) {
+    throw invalid(file, "github.sprintField must have a name");
+  }
+  if (!GITHUB_SPRINT_KINDS.includes(sprint["kind"])) {
+    throw invalid(
+      file,
+      `github.sprintField.kind must be one of ${GITHUB_SPRINT_KINDS.join(", ")}`
+    );
+  }
+  const sprintId = sprint["id"];
+  if (sprintId !== null && !str(sprintId)) {
+    throw invalid(file, "github.sprintField.id must be a string or null");
+  }
+  if (!SUB_ISSUE_MODES.includes(block["subIssues"])) {
+    throw invalid(file, `github.subIssues must be one of ${SUB_ISSUE_MODES.join(", ")}`);
+  }
+  return value;
+}
+function validateLinearIds(value, file) {
+  if (!isPlainObject(value)) throw invalid(file, 'the "linear" block is missing');
+  const block = value;
+  for (const key of ["team", "teamId", "teamName"]) {
+    if (!str(block[key])) throw invalid(file, `linear.${key} must be a non-empty string`);
+  }
+  const statuses = block["statuses"];
+  if (!isPlainObject(statuses)) throw invalid(file, "linear.statuses must be an object");
+  for (const [alias, status] of Object.entries(statuses)) {
+    if (!isPlainObject(status) || !str(status["id"]) || !str(status["name"]) || !str(status["type"])) {
+      throw invalid(file, `linear.statuses.${alias} must have an id, a name and a type`);
+    }
+  }
+  if (typeof block["cycles"] !== "boolean") {
+    throw invalid(file, "linear.cycles must be a boolean");
+  }
+  if (block["subIssues"] !== "native") throw invalid(file, "linear.subIssues must be native");
+  return value;
+}
+function validateProjectIds(value, file) {
+  if (!isPlainObject(value)) throw invalid(file, "the top level must be an object");
+  const provider = value["provider"];
+  if (!TRACKER_PROVIDERS.includes(provider)) {
+    throw invalid(file, `provider must be one of ${TRACKER_PROVIDERS.join(", ")}`);
+  }
+  if (!str(value["discoveredAt"])) {
+    throw invalid(file, "discoveredAt must be a non-empty string");
+  }
+  if (provider === "github") validateGitHubIds(value["github"], file);
+  if (provider === "linear") validateLinearIds(value["linear"], file);
+  return value;
+}
+function gitHubIds(ids, file) {
+  if (ids.github === void 0) throw invalid(file, 'the "github" block is missing');
+  return ids.github;
+}
+function linearIds(ids, file) {
+  if (ids.linear === void 0) throw invalid(file, 'the "linear" block is missing');
+  return ids.linear;
+}
+function stale(file, what, recorded, configured) {
+  return new DadError(
+    3 /* NOT_CONFIGURED */,
+    `${file} is stale: it records ${what} ${JSON.stringify(recorded)} but the settings say ${JSON.stringify(configured)}; run \`dad tracker discover\``,
+    { file, what, recorded, configured }
+  );
+}
+function checkFresh(ids, settings, file) {
+  const configuredProvider = trackerProvider(settings);
+  if (ids.provider !== configuredProvider) {
+    throw stale(file, "provider", ids.provider, configuredProvider);
+  }
+  if (ids.provider === "linear" && ids.linear !== void 0) {
+    const configured = getPath(settings, "tracker.linear.team");
+    if (configured !== void 0 && configured !== ids.linear.team) {
+      throw stale(file, "tracker.linear.team", ids.linear.team, configured);
+    }
+    return;
+  }
+  if (ids.provider !== "github" || ids.github === void 0) return;
+  const pairs = [
+    ["tracker.github.owner", ids.github.owner, getPath(settings, "tracker.github.owner")],
+    ["tracker.github.repo", ids.github.repo, getPath(settings, "tracker.github.repo")],
+    [
+      "tracker.github.projectNumber",
+      ids.github.projectNumber,
+      getPath(settings, "tracker.github.projectNumber")
+    ]
+  ];
+  for (const [what, recorded, configured] of pairs) {
+    if (configured !== void 0 && configured !== recorded) {
+      throw stale(file, what, recorded, configured);
+    }
+  }
+}
+function readProjectIds(dadDir, settings) {
+  const file = projectIdsPath(dadDir);
+  let raw;
+  try {
+    raw = readFileSync5(file, "utf8");
+  } catch {
+    throw new DadError(
+      3 /* NOT_CONFIGURED */,
+      `${file} is missing; run \`dad tracker discover\` (or \`dad init\`)`,
+      { file }
+    );
+  }
+  let parsed;
+  try {
+    parsed = JSON.parse(raw);
+  } catch (thrown) {
+    throw invalid(file, thrown instanceof Error ? thrown.message : String(thrown));
+  }
+  const ids = validateProjectIds(parsed, file);
+  checkFresh(ids, settings, file);
+  return ids;
+}
+function writeProjectIds(dadDir, ids) {
+  const file = projectIdsPath(dadDir);
+  writeFileSync2(file, `${JSON.stringify(ids, null, 2)}
+`, "utf8");
+  return file;
+}
+
+// src/tracker/columns.ts
+function columnMap(settings) {
+  const columns = getPath(settings, "tracker.columns");
+  if (!isPlainObject(columns)) return {};
+  const map = {};
+  for (const [alias, label] of Object.entries(columns)) {
+    if (typeof label === "string") map[alias] = label;
+  }
+  return map;
+}
+function knownAliases(settings) {
+  return Object.keys(columnMap(settings));
+}
+function labelForAlias(alias, settings) {
+  const label = columnMap(settings)[alias];
+  if (label === void 0) {
+    const known = knownAliases(settings);
+    throw new DadError(
+      4 /* NOT_FOUND */,
+      `unknown column alias '${alias}'; known: ${known.length === 0 ? "(none)" : known.join(", ")}`,
+      { alias, known }
+    );
+  }
+  return label;
+}
+function sameLabel(a, b) {
+  return a.toLowerCase() === b.toLowerCase();
+}
+function recordedColumn(alias, ids) {
+  switch (ids.provider) {
+    case "github":
+      return ids.github?.statusField.options[alias];
+    case "linear":
+      return ids.linear?.statuses[alias];
+    case "jira":
+      return void 0;
+  }
+}
+function resolveColumn(alias, settings, ids, dadDir = "") {
+  const label = labelForAlias(alias, settings);
+  const option = recordedColumn(alias, ids);
+  const where = dadDir === "" ? "project-ids.json" : projectIdsPath(dadDir);
+  if (option === void 0 || !sameLabel(option.name, label)) {
+    throw new DadError(
+      3 /* NOT_CONFIGURED */,
+      `column '${alias}' (${label}) is not in ${where}; run \`dad tracker discover\``,
+      { alias, label, recorded: option?.name ?? null }
+    );
+  }
+  return { alias, label, optionId: option.id };
+}
+function aliasForLabel(label, settings) {
+  for (const [alias, configured] of Object.entries(columnMap(settings))) {
+    if (sameLabel(configured, label)) return alias;
+  }
+  return null;
+}
+function newIssueColumn(settings) {
+  const value = getPath(settings, "defaults.newIssueColumn");
+  if (typeof value !== "string" || value === "") {
+    throw new DadError(
+      3 /* NOT_CONFIGURED */,
+      "no value for 'defaults.newIssueColumn'",
+      { path: "defaults.newIssueColumn" }
+    );
+  }
+  const known = knownAliases(settings);
+  if (!known.includes(value)) {
+    throw new DadError(
+      8 /* INVALID_CONFIG */,
+      `defaults.newIssueColumn: '${value}' is not a tracker.columns alias; known: ${known.join(", ")}`,
+      { path: "defaults.newIssueColumn", value, known }
+    );
+  }
+  return value;
+}
+
+// src/tracker/issue-types.ts
+function typeLabels(settings) {
+  const issueTypes = getPath(settings, "issueTypes");
+  if (!isPlainObject(issueTypes)) return {};
+  const map = {};
+  for (const [type, entry] of Object.entries(issueTypes)) {
+    if (!isPlainObject(entry)) continue;
+    const label = entry["label"];
+    if (typeof label === "string" && label !== "") map[type] = label;
+  }
+  return map;
+}
+function labelForType(type, settings) {
+  const label = typeLabels(settings)[type];
+  if (label === void 0) {
+    const known = Object.keys(typeLabels(settings));
+    throw new DadError(
+      2 /* USAGE */,
+      `unknown issue type '${type}'; known: ${known.length === 0 ? "(none)" : known.join(", ")}`,
+      { type, known }
+    );
+  }
+  return label;
+}
+function typeForLabels(labels, settings) {
+  const lowered = labels.map((label) => label.toLowerCase());
+  for (const [type, label] of Object.entries(typeLabels(settings))) {
+    if (lowered.includes(label.toLowerCase())) return type;
+  }
+  return null;
+}
+
 // src/tracker/github/transport.ts
+import { spawn as spawn3 } from "node:child_process";
 var HTTP_STATUS_PATTERN = /\(HTTP (\d{3})\)/;
 var NOT_FOUND_PATTERN = /Could not resolve to|could not find|not found|\(HTTP 404\)/i;
 function httpStatusOf(stderr) {
@@ -10091,6 +10655,30 @@ async function discoverGitHub(ctx, transport) {
   };
 }
 
+// src/tracker/linear/settings.ts
+var LINEAR_TOKEN_VARIABLE = TRACKER_TOKEN_VARIABLES.linear;
+var DEFAULT_LINEAR_MCP_URL = "https://mcp.linear.app/mcp";
+function mcpUrl(settings) {
+  const value = getPath(settings, "tracker.linear.mcpUrl");
+  return typeof value === "string" && value !== "" ? value : DEFAULT_LINEAR_MCP_URL;
+}
+function readLinearSettings(settings) {
+  const path = "tracker.linear.team";
+  const team = getPath(settings, path);
+  if (typeof team !== "string" || team === "") {
+    throw new DadError(3 /* NOT_CONFIGURED */, `no value for '${path}'`, { path });
+  }
+  const cycle = getPath(settings, "tracker.linear.cycle");
+  return {
+    team,
+    cycle: cycle === "current" ? "current" : "none",
+    mcpUrl: mcpUrl(settings)
+  };
+}
+function linearMcpServer(settings) {
+  return { url: mcpUrl(settings), tokenVariable: LINEAR_TOKEN_VARIABLE };
+}
+
 // src/tracker/body-lines.ts
 function escape2(text) {
   return text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
@@ -10120,11 +10708,16 @@ function parseParentLine(body, provider) {
 }
 function scopeTableLists(body, key, provider) {
   const pattern = new RegExp(`^\\|\\s*#?(${refPattern(provider).source})\\s*\\|`, "gm");
+  const wanted = canonicalKey(provider, key);
   for (const matched of body.matchAll(pattern)) {
-    if (matched[1] === key) return true;
+    if (canonicalKey(provider, matched[1]) === wanted) return true;
   }
   return false;
 }
+
+// src/tracker/limits.ts
+var SCAN_LIMIT_ROWS = 1e3;
+var TRUNCATED_NOTICE = "dad: the board holds more items than one scan returns; the list is truncated";
 
 // src/tracker/github/parse-card.ts
 function issueNode(data) {
@@ -10232,9 +10825,7 @@ function numberFromUrl(url) {
 }
 
 // src/tracker/github/provider.ts
-var SCAN_LIMIT_ROWS = 1e3;
 var SCAN_LIMIT = String(SCAN_LIMIT_ROWS);
-var TRUNCATED_NOTICE = "dad: the board holds more items than one scan returns; the list is truncated";
 function sameSprintName(value, wanted) {
   return value.toLowerCase() === wanted.toLowerCase() || slugify(value) === slugify(wanted);
 }
@@ -10741,6 +11332,948 @@ ${parentLine(ref)}`));
   }
 };
 
+// src/tracker/linear/parse.ts
+function unexpected(tool, text) {
+  return new DadError(1 /* FAILURE */, `unexpected reply from the Linear tool '${tool}'`, {
+    tool,
+    text
+  });
+}
+function parseJson2(tool, text) {
+  try {
+    return JSON.parse(text);
+  } catch {
+    throw unexpected(tool, text);
+  }
+}
+function str2(value) {
+  return typeof value === "string" && value !== "";
+}
+function parseTeam(text) {
+  const tool = "get_team";
+  const parsed = parseJson2(tool, text);
+  if (parsed === null) return null;
+  if (!isPlainObject(parsed)) throw unexpected(tool, text);
+  const id = parsed["id"];
+  if (id === void 0 || id === null || id === "") return null;
+  const name = parsed["name"];
+  if (!str2(id) || !str2(name)) throw unexpected(tool, text);
+  return { id, name };
+}
+function parseStatuses(text) {
+  const tool = "list_issue_statuses";
+  const parsed = parseJson2(tool, text);
+  if (!Array.isArray(parsed)) throw unexpected(tool, text);
+  return parsed.map((entry) => {
+    if (!isPlainObject(entry)) throw unexpected(tool, text);
+    const { id, name, type } = entry;
+    if (!str2(id) || !str2(name) || !str2(type)) throw unexpected(tool, text);
+    return { id, name, type };
+  });
+}
+function parseLabelPage(text) {
+  const tool = "list_issue_labels";
+  const parsed = parseJson2(tool, text);
+  if (!isPlainObject(parsed) || !Array.isArray(parsed["labels"])) throw unexpected(tool, text);
+  const names = [];
+  for (const entry of parsed["labels"]) {
+    if (!isPlainObject(entry) || typeof entry["name"] !== "string") throw unexpected(tool, text);
+    const retired = entry["retiredAt"];
+    if (retired !== void 0 && retired !== null) continue;
+    names.push(entry["name"]);
+  }
+  return { names, next: nextCursor(parsed, tool, text) };
+}
+function parseHasCycles(text) {
+  const tool = "list_cycles";
+  const parsed = parseJson2(tool, text);
+  if (Array.isArray(parsed)) return parsed.length > 0;
+  if (isPlainObject(parsed) && Array.isArray(parsed["cycles"])) return parsed["cycles"].length > 0;
+  throw unexpected(tool, text);
+}
+function parseCycles(text) {
+  const tool = "list_cycles";
+  const parsed = parseJson2(tool, text);
+  const listed = Array.isArray(parsed) ? parsed : isPlainObject(parsed) && Array.isArray(parsed["cycles"]) ? parsed["cycles"] : void 0;
+  if (listed === void 0) throw unexpected(tool, text);
+  return listed.map((entry) => {
+    if (!isPlainObject(entry)) throw unexpected(tool, text);
+    const { id, name, number } = entry;
+    if (!str2(id)) throw unexpected(tool, text);
+    const label = str2(name) ? name : typeof number === "number" ? `Cycle ${number}` : id;
+    return { id, label };
+  });
+}
+function parseIssue(value, tool, text) {
+  if (!isPlainObject(value)) throw unexpected(tool, text);
+  const { id, title, url, status, statusType } = value;
+  if (!str2(id) || !str2(title) || !str2(url) || !str2(status) || !str2(statusType)) {
+    throw unexpected(tool, text);
+  }
+  const labels = [];
+  const listed = value["labels"] ?? [];
+  if (!Array.isArray(listed)) throw unexpected(tool, text);
+  for (const entry of listed) {
+    const name = isPlainObject(entry) ? entry["name"] : entry;
+    if (typeof name !== "string") throw unexpected(tool, text);
+    labels.push(name);
+  }
+  const parentId = value["parentId"] ?? null;
+  if (parentId !== null && !str2(parentId)) throw unexpected(tool, text);
+  const description = value["description"] ?? "";
+  if (typeof description !== "string") throw unexpected(tool, text);
+  return { id, title, url, status, statusType, labels, parentId, description };
+}
+function parseIssueReply(text) {
+  const tool = "get_issue";
+  return parseIssue(parseJson2(tool, text), tool, text);
+}
+function parseSavedIssue(text) {
+  const tool = "save_issue";
+  return parseIssue(parseJson2(tool, text), tool, text);
+}
+function parseIssueRelations(text) {
+  const tool = "get_issue";
+  const parsed = parseJson2(tool, text);
+  const issue = parseIssue(parsed, tool, text);
+  const relations = parsed["relations"] ?? null;
+  if (relations === null) return { issue, relatedTo: [] };
+  if (!isPlainObject(relations)) throw unexpected(tool, text);
+  const listed = relations["relatedTo"] ?? [];
+  if (!Array.isArray(listed)) throw unexpected(tool, text);
+  const relatedTo = listed.map((entry) => {
+    const id = isPlainObject(entry) ? entry["id"] : void 0;
+    if (!str2(id)) throw unexpected(tool, text);
+    return id;
+  });
+  return { issue, relatedTo };
+}
+function parseSavedComment(text) {
+  const tool = "save_comment";
+  let parsed;
+  try {
+    parsed = JSON.parse(text);
+  } catch {
+    parsed = void 0;
+  }
+  const id = isPlainObject(parsed) ? parsed["id"] : void 0;
+  if (!str2(id)) {
+    throw new DadError(
+      1 /* FAILURE */,
+      `the Linear tool '${tool}' posted the comment but its reply had no id; do not post it again`,
+      { tool, text }
+    );
+  }
+  return { id };
+}
+function nextCursor(parsed, tool, text) {
+  const more = parsed["hasNextPage"] ?? false;
+  if (typeof more !== "boolean") throw unexpected(tool, text);
+  if (more !== true) return void 0;
+  const cursor = parsed["cursor"];
+  if (!str2(cursor)) throw unexpected(tool, text);
+  return cursor;
+}
+function parseIssuePage(text) {
+  const tool = "list_issues";
+  const parsed = parseJson2(tool, text);
+  if (!isPlainObject(parsed) || !Array.isArray(parsed["issues"])) throw unexpected(tool, text);
+  const issues = parsed["issues"].map((entry) => parseIssue(entry, tool, text));
+  const next = nextCursor(parsed, tool, text);
+  if (issues.length === 0 && next !== void 0) throw unexpected(tool, text);
+  return { issues, next };
+}
+function parseCommentPage(text) {
+  const tool = "list_comments";
+  const parsed = parseJson2(tool, text);
+  if (!isPlainObject(parsed) || !Array.isArray(parsed["comments"])) throw unexpected(tool, text);
+  const comments = parsed["comments"].map((entry) => {
+    if (!isPlainObject(entry)) throw unexpected(tool, text);
+    const { id, createdAt, author } = entry;
+    const body = entry["body"] ?? "";
+    if (!str2(id) || !str2(createdAt) || typeof body !== "string") throw unexpected(tool, text);
+    const name = isPlainObject(author) ? author["name"] : void 0;
+    return { id, createdAt, body, author: typeof name === "string" ? name : "" };
+  });
+  return { comments, next: nextCursor(parsed, tool, text) };
+}
+
+// src/tracker/linear/discover.ts
+var LINEAR_REQUIRED_TOOLS = [
+  "get_team",
+  "list_issue_statuses",
+  "list_issue_labels",
+  "list_cycles",
+  "get_issue",
+  "list_issues",
+  "save_issue",
+  "list_comments",
+  "save_comment"
+];
+var LABEL_PAGE_SIZE = 250;
+var MAX_LABEL_PAGES = 50;
+var CYCLE_FIELD_NAME = "Cycle";
+var TEAM_PATH = "tracker.linear.team";
+function linearSprintField(settings, cycles) {
+  const present = cycles && getPath(settings, "tracker.linear.cycle") === "current";
+  return { present, kind: present ? "cycle" : "none", name: CYCLE_FIELD_NAME };
+}
+function sameLabel3(a, b) {
+  return a.toLowerCase() === b.toLowerCase();
+}
+function noSuchTeam(team, said) {
+  return new DadError(
+    4 /* NOT_FOUND */,
+    `no Linear team matches '${team}' (${TEAM_PATH})${said === void 0 ? "" : `: ${said}`}`,
+    { team, path: TEAM_PATH }
+  );
+}
+async function discoverLinear(ctx, transport) {
+  const config = readLinearSettings(ctx.settings);
+  const options = { stderr: ctx.stderr, tokenVariable: LINEAR_TOKEN_VARIABLE };
+  const call = (name, args) => callMcpTool(transport, name, args, options);
+  await requireMcpTools(transport, LINEAR_REQUIRED_TOOLS, options);
+  let teamText;
+  try {
+    teamText = await call("get_team", { query: config.team });
+  } catch (thrown) {
+    if (thrown instanceof DadError && thrown.code === 4 /* NOT_FOUND */) {
+      throw noSuchTeam(config.team, thrown.message);
+    }
+    throw thrown;
+  }
+  const team = parseTeam(teamText);
+  if (team === null) throw noSuchTeam(config.team);
+  const statuses = parseStatuses(await call("list_issue_statuses", { team: team.id }));
+  const labels = [];
+  let cursor;
+  for (let page = 1; ; page += 1) {
+    if (page > MAX_LABEL_PAGES) {
+      throw new DadError(
+        1 /* FAILURE */,
+        `the Linear tool 'list_issue_labels' was still paging after ${MAX_LABEL_PAGES} pages`,
+        { tool: "list_issue_labels", pages: MAX_LABEL_PAGES }
+      );
+    }
+    const listed = parseLabelPage(
+      await call("list_issue_labels", {
+        team: team.id,
+        limit: LABEL_PAGE_SIZE,
+        ...cursor === void 0 ? {} : { cursor }
+      })
+    );
+    labels.push(...listed.names);
+    if (listed.next === void 0) break;
+    cursor = listed.next;
+  }
+  const cycles = parseHasCycles(await call("list_cycles", { teamId: team.id }));
+  if (config.cycle === "current" && !cycles) {
+    ctx.stderr.write(
+      `dad: tracker.linear.cycle is 'current' but team ${team.name} has no cycles; sprint work will not join a cycle
+`
+    );
+  }
+  const columns = { matched: [], missing: [] };
+  const recorded = {};
+  for (const [alias, label] of Object.entries(columnMap(ctx.settings))) {
+    const status = statuses.find((candidate) => sameLabel3(candidate.name, label));
+    if (status === void 0) {
+      columns.missing.push({ alias, label });
+      continue;
+    }
+    columns.matched.push({ alias, label: status.name, id: status.id });
+    recorded[alias] = { id: status.id, name: status.name, type: status.type };
+  }
+  const issueTypes = { matched: [], missing: [] };
+  for (const [type, label] of Object.entries(typeLabels(ctx.settings))) {
+    const present = labels.some((candidate) => sameLabel3(candidate, label));
+    (present ? issueTypes.matched : issueTypes.missing).push({ type, label });
+  }
+  const ids = {
+    provider: "linear",
+    // Stamped by the command, as for GitHub.
+    discoveredAt: "",
+    linear: {
+      team: config.team,
+      teamId: team.id,
+      teamName: team.name,
+      statuses: recorded,
+      cycles,
+      subIssues: "native"
+    }
+  };
+  return {
+    ids,
+    report: {
+      columns,
+      issueTypes,
+      sprintField: {
+        name: CYCLE_FIELD_NAME,
+        kind: linearSprintField(ctx.settings, cycles).kind
+      },
+      subIssues: "native"
+    }
+  };
+}
+
+// src/tracker/linear/markdown.ts
+var FENCE_OPEN = /^\s*(`{3,}|~{3,})(.*)\r?$/;
+var THEMATIC_BREAK = /^\s*\*(?:\s*\*){2,}\s*$/;
+var STAR_MARKER = /^(\s*)\* /;
+var CHECKED_MARKER = /^(\s*- )\[X\](?=\s|$)/;
+var MENTION = new RegExp(`<issue\\b[^<>]*>(${KEY_PATTERN.source})</issue>`, "g");
+var SELF_LINK = /(?<!!)\[(https?:\/\/[^\s[\]]+)\]\((?:<\1>|\1)\)/g;
+var ISSUE_URL = `https?://linear\\.app/[^/\\s()<>?#]+/issue/(${KEY_PATTERN.source})(?:/[^/\\s()<>?#]*)?(?:\\?[^\\s()<>#]*)?(?:#[^\\s()<>]*)?`;
+var LINK_MENTION = new RegExp(
+  `(?<!!)\\[(${KEY_PATTERN.source})\\]\\((?:<${ISSUE_URL}>|${ISSUE_URL})\\)`,
+  "g"
+);
+function openingFence(line) {
+  const matched = FENCE_OPEN.exec(line);
+  if (matched === null) return void 0;
+  const run2 = matched[1];
+  if (run2.startsWith("`") && matched[2].includes("`")) return void 0;
+  return { char: run2.charAt(0), length: run2.length };
+}
+function closesFence(line, fence) {
+  const text = line.trim();
+  if (text.length < fence.length) return false;
+  for (const char of text) {
+    if (char !== fence.char) return false;
+  }
+  return true;
+}
+function bareKey(whole, key, angled, plain) {
+  return (angled ?? plain ?? "").toLowerCase() === key.toLowerCase() ? key : whole;
+}
+function inline(text) {
+  return text.replace(MENTION, "$1").replace(LINK_MENTION, bareKey).replace(SELF_LINK, "$1");
+}
+function backtickRuns(line) {
+  const runs = /* @__PURE__ */ new Map();
+  for (const run2 of line.matchAll(/`+/g)) {
+    const starts = runs.get(run2[0].length);
+    if (starts === void 0) runs.set(run2[0].length, [run2.index]);
+    else starts.push(run2.index);
+  }
+  return runs;
+}
+function closingRun(runs, from, length) {
+  const starts = runs.get(length) ?? [];
+  let low = 0;
+  let high = starts.length;
+  while (low < high) {
+    const middle = low + high >> 1;
+    if (starts[middle] < from) low = middle + 1;
+    else high = middle;
+  }
+  const start = starts[low];
+  return start === void 0 ? -1 : start + length;
+}
+function outsideCodeSpans(line, rewrite) {
+  if (!line.includes("`")) return rewrite(line);
+  const runs = backtickRuns(line);
+  let out = "";
+  let pending = 0;
+  let index = 0;
+  while (index < line.length) {
+    const char = line.charAt(index);
+    if (char === "\\") {
+      let end2 = index;
+      while (line.charAt(end2) === "\\") end2 += 1;
+      const escapes = (end2 - index) % 2 === 1 && line.charAt(end2) === "`";
+      index = escapes ? end2 + 1 : end2;
+      continue;
+    }
+    if (char !== "`") {
+      index += 1;
+      continue;
+    }
+    let end = index;
+    while (line.charAt(end) === "`") end += 1;
+    const close = closingRun(runs, end, end - index);
+    if (close === -1) {
+      index = end;
+      continue;
+    }
+    out += rewrite(line.slice(pending, index)) + line.slice(index, close);
+    pending = close;
+    index = close;
+  }
+  return out + rewrite(line.slice(pending));
+}
+function canonicalLine(line) {
+  let text = line;
+  if (!THEMATIC_BREAK.test(text)) text = text.replace(STAR_MARKER, "$1- ");
+  text = text.replace(CHECKED_MARKER, "$1[x]");
+  return outsideCodeSpans(text, inline);
+}
+function outsideFences(text, rewrite) {
+  let fence;
+  return text.split("\n").map((line) => {
+    if (fence !== void 0) {
+      if (closesFence(line, fence)) fence = void 0;
+      return line;
+    }
+    fence = openingFence(line);
+    return fence === void 0 ? rewrite(line) : line;
+  }).join("\n");
+}
+function canonicalMarkdown(text) {
+  return outsideFences(text, canonicalLine);
+}
+var TABLE_ROW = /^\s*\|/;
+var PROTECTED_PIPE = "\uFF5C";
+var ESCAPED_PIPE = /(?<!\\)(\\+)\||&#124;/g;
+function protectPipes(text) {
+  return text.replace(ESCAPED_PIPE, (whole, slashes) => {
+    if (slashes === void 0) return PROTECTED_PIPE;
+    return slashes.length % 2 === 1 ? slashes.slice(1) + PROTECTED_PIPE : whole;
+  });
+}
+function writableMarkdown(text) {
+  return outsideFences(
+    text,
+    (line) => TABLE_ROW.test(line) ? outsideCodeSpans(line, protectPipes) : line
+  );
+}
+
+// src/tracker/linear/issues.ts
+var CLOSED_STATUS_TYPES = ["completed", "canceled", "duplicate"];
+var OPEN_STATUS_TYPES = ["started", "unstarted", "backlog", "triage"];
+var PAGE_SIZE = 250;
+var MAX_COMMENT_PAGES = 50;
+var LIST_ISSUE_FIELDS = [
+  "id",
+  "title",
+  "url",
+  "status",
+  "statusType",
+  "labels",
+  "parentId"
+];
+function callOptions(ctx) {
+  return { stderr: ctx.stderr, tokenVariable: LINEAR_TOKEN_VARIABLE };
+}
+function stateOf(statusType) {
+  return CLOSED_STATUS_TYPES.includes(statusType) ? "closed" : "open";
+}
+function aliasForStatus(status, ctx, block) {
+  const wanted = status.toLowerCase();
+  for (const alias of knownAliases(ctx.settings)) {
+    if (block.statuses[alias]?.name.toLowerCase() === wanted) return alias;
+  }
+  return null;
+}
+function toTrackerIssue(issue, ctx, block) {
+  return {
+    key: issue.id,
+    url: issue.url,
+    title: issue.title,
+    state: stateOf(issue.statusType),
+    labels: issue.labels,
+    type: typeForLabels(issue.labels, ctx.settings),
+    column: aliasForStatus(issue.status, ctx, block),
+    columnLabel: issue.status,
+    sprint: null,
+    parent: issue.parentId,
+    onBoard: true
+  };
+}
+function linearCommentUrl(issueUrl, commentId) {
+  return `${issueUrl}#comment-${commentId.slice(0, 8)}`;
+}
+async function listComments(ctx, transport, issue) {
+  const comments = [];
+  let cursor;
+  for (let page = 1; ; page += 1) {
+    if (page > MAX_COMMENT_PAGES) {
+      throw new DadError(
+        1 /* FAILURE */,
+        `the Linear tool 'list_comments' was still paging after ${MAX_COMMENT_PAGES} pages`,
+        { tool: "list_comments", pages: MAX_COMMENT_PAGES }
+      );
+    }
+    const listed = parseCommentPage(
+      await callMcpTool(
+        transport,
+        "list_comments",
+        {
+          issueId: issue.id,
+          limit: PAGE_SIZE,
+          orderBy: "createdAt",
+          ...cursor === void 0 ? {} : { cursor }
+        },
+        callOptions(ctx)
+      )
+    );
+    comments.push(...listed.comments);
+    if (listed.next === void 0) break;
+    cursor = listed.next;
+  }
+  comments.sort((a, b) => a.createdAt < b.createdAt ? -1 : a.createdAt > b.createdAt ? 1 : 0);
+  return comments.map((comment) => ({
+    author: comment.author,
+    createdAt: comment.createdAt,
+    body: canonicalMarkdown(comment.body),
+    url: linearCommentUrl(issue.url, comment.id)
+  }));
+}
+async function viewLinearIssue(ctx, transport, block, key, options = {}) {
+  const issue = parseIssueReply(
+    await callMcpTool(transport, "get_issue", { id: key }, callOptions(ctx))
+  );
+  const detail = {
+    ...toTrackerIssue(issue, ctx, block),
+    body: canonicalMarkdown(issue.description)
+  };
+  if (options.comments === true) detail.comments = await listComments(ctx, transport, issue);
+  return detail;
+}
+function linearListQuery(ctx, ids, filter) {
+  const keep = filter.state ?? "open";
+  const label = filter.type === void 0 ? void 0 : labelForType(filter.type, ctx.settings);
+  let states;
+  if (filter.status !== void 0) {
+    states = [resolveColumn(filter.status, ctx.settings, ids, ctx.dadDir).optionId];
+  } else if (keep === "all") {
+    states = [void 0];
+  } else {
+    states = keep === "open" ? OPEN_STATUS_TYPES : CLOSED_STATUS_TYPES;
+  }
+  return { states, label, parentId: filter.parent, keep };
+}
+function keyNumber(key) {
+  const digits = /([0-9]+)$/.exec(key);
+  return digits === null ? 0 : Number(digits[1]);
+}
+async function scanLinearIssues(ctx, transport, block, query, fields) {
+  const byKey = /* @__PURE__ */ new Map();
+  let remaining = SCAN_LIMIT_ROWS;
+  let truncated = false;
+  scan: for (const state of query.states) {
+    let cursor;
+    for (; ; ) {
+      if (remaining <= 0) {
+        truncated = true;
+        break scan;
+      }
+      const page = parseIssuePage(
+        await callMcpTool(
+          transport,
+          "list_issues",
+          {
+            team: block.teamId,
+            limit: Math.min(PAGE_SIZE, remaining),
+            orderBy: "createdAt",
+            fields: [...fields],
+            ...state === void 0 ? {} : { state },
+            ...query.label === void 0 ? {} : { label: query.label },
+            ...query.parentId === void 0 ? {} : { parentId: query.parentId },
+            ...cursor === void 0 ? {} : { cursor }
+          },
+          callOptions(ctx)
+        )
+      );
+      const rows = page.issues.slice(0, remaining);
+      remaining -= rows.length;
+      for (const row2 of rows) {
+        if (!byKey.has(row2.id)) byKey.set(row2.id, row2);
+      }
+      if (rows.length < page.issues.length) {
+        truncated = true;
+        break scan;
+      }
+      if (page.next === void 0) break;
+      cursor = page.next;
+    }
+  }
+  return { rows: [...byKey.values()], truncated };
+}
+function keptByQuery(row2, query) {
+  return query.keep === "all" || stateOf(row2.statusType) === query.keep;
+}
+async function listLinearIssues(ctx, transport, block, query) {
+  const { rows, truncated } = await scanLinearIssues(
+    ctx,
+    transport,
+    block,
+    query,
+    LIST_ISSUE_FIELDS
+  );
+  const issues = rows.filter((row2) => keptByQuery(row2, query)).map((row2) => toTrackerIssue(row2, ctx, block)).sort(
+    (a, b) => keyNumber(a.key) - keyNumber(b.key) || (a.key < b.key ? -1 : a.key > b.key ? 1 : 0)
+  );
+  return { issues, truncated };
+}
+
+// src/tracker/linear/writes.ts
+function once(options) {
+  return { ...options, singleAttempt: true };
+}
+function sameKey(a, b) {
+  return a.toUpperCase() === b.toUpperCase();
+}
+function readIssue(transport, key, options) {
+  return callMcpTool(transport, "get_issue", { id: key }, options);
+}
+function updateIssue(transport, key, change, options) {
+  if (key === "") {
+    throw new DadError(1 /* FAILURE */, "internal: a Linear issue update needs the issue key");
+  }
+  return callMcpTool(transport, "save_issue", { ...change, id: key }, options);
+}
+var CREATED = /* @__PURE__ */ new WeakSet();
+function afterCreate(error) {
+  CREATED.add(error);
+  return error;
+}
+function linearIssueWasCreated(thrown) {
+  return thrown instanceof DadError && CREATED.has(thrown);
+}
+var LABEL_NOT_FOUND = /^could not find label/i;
+function withParent(thrown, parent) {
+  if (!(thrown instanceof DadError) || parent === void 0) return thrown;
+  return new DadError(thrown.code, thrown.message, { ...thrown.details, parent });
+}
+async function createLinearIssue(ctx, transport, block, input, options = callOptions(ctx)) {
+  const { parent } = input;
+  const description = writableMarkdown(input.body);
+  const args = {
+    team: block.teamId,
+    title: input.title,
+    labels: [input.label],
+    state: input.column.optionId,
+    ...description === "" ? {} : { description },
+    ...parent === void 0 ? {} : { parentId: parent }
+  };
+  let text;
+  try {
+    if (parent !== void 0) await readIssue(transport, parent, options);
+    const cycle = await input.cycleId?.();
+    if (cycle !== void 0) args["cycle"] = cycle;
+    text = await callMcpTool(transport, "save_issue", args, once(options));
+  } catch (thrown) {
+    if (thrown instanceof DadError && thrown.code === 4 /* NOT_FOUND */ && LABEL_NOT_FOUND.test(thrown.message)) {
+      throw new DadError(
+        4 /* NOT_FOUND */,
+        `Linear has no label '${input.label}' for issue type '${input.type}'; create the label in Linear or change issueTypes.${input.type}.label`,
+        { type: input.type, label: input.label, text: thrown.message }
+      );
+    }
+    throw withParent(thrown, parent);
+  }
+  let saved;
+  try {
+    saved = parseSavedIssue(text);
+  } catch {
+    throw afterCreate(
+      new DadError(
+        1 /* FAILURE */,
+        "the Linear tool 'save_issue' created the issue but its reply was not understood; find it in Linear before creating it again",
+        { tool: "save_issue", text }
+      )
+    );
+  }
+  if (parent !== void 0 && saved.parentId === null) {
+    throw afterCreate(
+      new DadError(
+        1 /* FAILURE */,
+        `created ${saved.id} without its parent; link it with \`dad issue link ${saved.id} --parent ${parent}\`, do not create it again`,
+        { key: saved.id, url: saved.url, step: "link-parent", parent }
+      )
+    );
+  }
+  return {
+    // What Linear stored, not what dad intended.
+    issue: toTrackerIssue(saved, ctx, block),
+    parentLink: saved.parentId === null || parent === void 0 ? null : { key: saved.id, kind: "parent", target: saved.parentId, mode: "native", changed: true }
+  };
+}
+async function moveLinearIssue(ctx, transport, block, key, column, options = callOptions(ctx)) {
+  const issue = parseIssueReply(await readIssue(transport, key, options));
+  await updateIssue(transport, key, { state: column.optionId }, options);
+  return {
+    key,
+    column: column.alias,
+    // The server's spelling recorded at discovery, which `issue view` reports.
+    columnLabel: block.statuses[column.alias]?.name ?? column.label,
+    previous: aliasForStatus(issue.status, ctx, block),
+    added: false
+  };
+}
+async function setLinearBody(ctx, transport, key, body, options = callOptions(ctx)) {
+  await updateIssue(transport, key, { description: writableMarkdown(body) }, options);
+}
+async function appendLinearBody(ctx, transport, key, text, options = callOptions(ctx)) {
+  const tail = text.trimEnd();
+  if (tail === "") {
+    const issue = parseIssueReply(await readIssue(transport, key, options));
+    return { body: canonicalMarkdown(issue.description) };
+  }
+  const appended = `
+
+${writableMarkdown(tail)}`;
+  const reply = await updateIssue(
+    transport,
+    key,
+    { patch: [{ op: "append", text: appended }] },
+    once(options)
+  );
+  let description = "";
+  try {
+    description = parseSavedIssue(reply).description;
+  } catch {
+  }
+  if (description === "") {
+    try {
+      description = parseIssueReply(await readIssue(transport, key, options)).description;
+    } catch (thrown) {
+      const cause = thrown instanceof DadError ? { code: thrown.code, message: thrown.message, details: thrown.details } : { message: thrown instanceof Error ? thrown.message : String(thrown) };
+      throw new DadError(
+        1 /* FAILURE */,
+        `the Linear tool 'save_issue' appended the text to ${key} but the body could not be read back; do not append it again
+${cause.message}`,
+        { tool: "save_issue", key, applied: true, cause }
+      );
+    }
+  }
+  return { body: canonicalMarkdown(description) };
+}
+async function commentOnLinearIssue(ctx, transport, key, body, options = callOptions(ctx)) {
+  const issue = parseIssueReply(await readIssue(transport, key, options));
+  const saved = parseSavedComment(
+    await callMcpTool(transport, "save_comment", { issueId: key, body }, once(options))
+  );
+  return { url: linearCommentUrl(issue.url, saved.id) };
+}
+async function linkLinearIssue(ctx, transport, key, kind, target, options = callOptions(ctx)) {
+  const result = (changed) => ({ key, kind, target, mode: "native", changed });
+  if (kind === "related") {
+    const { relatedTo } = parseIssueRelations(
+      await callMcpTool(transport, "get_issue", { id: key, includeRelations: true }, options)
+    );
+    if (relatedTo.some((related) => sameKey(related, target))) return result(false);
+    await readIssue(transport, target, options);
+    await updateIssue(transport, key, { relatedTo: [target] }, options);
+    return result(true);
+  }
+  const issue = parseIssueReply(await readIssue(transport, key, options));
+  if (issue.parentId !== null) {
+    if (sameKey(issue.parentId, target)) return result(false);
+    throw new DadError(
+      1 /* FAILURE */,
+      `${key} already has parent ${issue.parentId}; remove that link before linking a different parent`,
+      { key, parent: issue.parentId, target }
+    );
+  }
+  await readIssue(transport, target, options);
+  await updateIssue(transport, key, { parentId: target }, options);
+  return result(true);
+}
+
+// src/tracker/linear/sprints.ts
+async function sprintForLinearIssue(ctx, transport, ids, block, key) {
+  parseIssueReply(await callMcpTool(transport, "get_issue", { id: key }, callOptions(ctx)));
+  if (typeLabels(ctx.settings)["sprint"] === void 0) return { key, sprint: null, source: null };
+  const query = linearListQuery(ctx, ids, { type: "sprint", state: "open" });
+  const scan2 = await scanLinearIssues(ctx, transport, block, query, [
+    ...LIST_ISSUE_FIELDS,
+    "description"
+  ]);
+  if (scan2.truncated) ctx.stderr.write(`${TRUNCATED_NOTICE}
+`);
+  const listing = scan2.rows.filter(
+    (row2) => keptByQuery(row2, query) && scopeTableLists(canonicalMarkdown(row2.description), key, "linear")
+  ).sort((a, b) => keyNumber(b.id) - keyNumber(a.id));
+  const first = listing[0];
+  if (first === void 0) return { key, sprint: null, source: null };
+  const assignment = { key, sprint: first.title, source: "scope-table" };
+  if (listing.length > 1) assignment.candidates = listing.map((row2) => row2.title);
+  return assignment;
+}
+function cycleOptionActive(settings, block) {
+  return linearSprintField(settings, block.cycles).present;
+}
+async function currentLinearCycle(ctx, transport, block, options = callOptions(ctx)) {
+  const cycles = parseCycles(
+    await callMcpTool(transport, "list_cycles", { teamId: block.teamId, type: "current" }, options)
+  );
+  return cycles[0] ?? null;
+}
+async function setLinearSprint(ctx, transport, block, key, sprintName, options = callOptions(ctx)) {
+  if (!cycleOptionActive(ctx.settings, block)) {
+    const optionOn = getPath(ctx.settings, "tracker.linear.cycle") === "current";
+    throw new DadError(
+      7 /* UNSUPPORTED */,
+      optionOn ? `team ${block.teamName} has no cycles (tracker.linear.cycle is 'current'); enable cycles in Linear and run \`dad tracker discover\`` : "tracker.linear.cycle is not 'current': Linear has no sprint field to set; sprint membership lives in the sprint issue's scope table",
+      { provider: "linear", operation: "sprint set" }
+    );
+  }
+  const cycle = await currentLinearCycle(ctx, transport, block, options);
+  if (cycle === null) {
+    throw new DadError(
+      4 /* NOT_FOUND */,
+      `team ${block.teamName} has no current cycle; ${key} was not added to one`,
+      { key, team: block.teamName }
+    );
+  }
+  const saved = parseSavedIssue(await updateIssue(transport, key, { cycle: cycle.id }, options));
+  ctx.stderr.write(`dad: ${saved.id} joined ${cycle.label}
+`);
+  return { key: saved.id, sprint: sprintName, valueId: cycle.id, added: false };
+}
+function noNamedSprints(operation) {
+  return new DadError(
+    7 /* UNSUPPORTED */,
+    `Linear has no named sprint values, so ${operation} cannot be answered; sprint membership lives in the sprint issue's scope table (dad sprint for-issue)`,
+    { provider: "linear", operation }
+  );
+}
+
+// src/tracker/linear/provider.ts
+var LinearProvider = class {
+  /** Stores the context and nothing else: a transport, file or setting is read when an operation needs it. */
+  constructor(ctx) {
+    this.ctx = ctx;
+  }
+  ctx;
+  name = "linear";
+  branchFormOfKey(key) {
+    return branchFormOfKey(this.name, key);
+  }
+  parseKey(input) {
+    return parseKey(this.name, input);
+  }
+  formatRef(key) {
+    return formatRef(this.name, key);
+  }
+  /**
+   * The transport is the caller's to supply, never this module's to invent,
+   * for the reason the registry gives for `gh`.
+   */
+  transport() {
+    if (this.ctx.mcp === void 0) {
+      throw new DadError(
+        1 /* FAILURE */,
+        "internal: the Linear tracker needs an MCP transport; build the context with `mcpTransportFor(io, linearMcpServer(settings))`"
+      );
+    }
+    return this.ctx.mcp;
+  }
+  /** The ids file and its Linear block; a missing, malformed or stale file fails here. */
+  discovered() {
+    const ids = readProjectIds(this.ctx.dadDir, this.ctx.settings);
+    return { ids, block: linearIds(ids, projectIdsPath(this.ctx.dadDir)) };
+  }
+  async discover() {
+    return discoverLinear(this.ctx, this.transport());
+  }
+  async capabilities() {
+    const { block } = this.discovered();
+    return {
+      provider: this.name,
+      sprintField: linearSprintField(this.ctx.settings, block.cycles),
+      subIssues: block.subIssues,
+      columns: Object.keys(block.statuses)
+    };
+  }
+  // Each read and each write does, in order: the ids file, so a missing or
+  // stale one fails before anything else; what can be decided locally (the
+  // filter, the type, the column); the transport; then the tool calls. The
+  // server's tools are not listed first: discovery checked them, and a tool
+  // the server stopped offering is still reported by name when its call fails.
+  async viewIssue(key, options = {}) {
+    const { block } = this.discovered();
+    return viewLinearIssue(this.ctx, this.transport(), block, key, options);
+  }
+  async listIssues(filter) {
+    const { ids, block } = this.discovered();
+    if (filter.sprint !== void 0) throw noNamedSprints("issue list --sprint");
+    const query = linearListQuery(this.ctx, ids, filter);
+    return listLinearIssues(this.ctx, this.transport(), block, query);
+  }
+  /** `viewIssue(key).body`; it has no command of its own. */
+  async getBody(key) {
+    return (await this.viewIssue(key)).body;
+  }
+  async createIssue(input) {
+    const { ids, block } = this.discovered();
+    const label = labelForType(input.type, this.ctx.settings);
+    const column = resolveColumn(input.column, this.ctx.settings, ids, this.ctx.dadDir);
+    const transport = this.transport();
+    const joinsCycle = input.type === "sprint" && cycleOptionActive(this.ctx.settings, block);
+    let noCurrentCycle = false;
+    const warn = (key) => {
+      if (!noCurrentCycle) return;
+      this.ctx.stderr.write(
+        `dad: team ${block.teamName} has no current cycle; sprint issue${typeof key === "string" ? ` ${key}` : ""} was not added to a cycle
+`
+      );
+    };
+    const create = createLinearIssue(this.ctx, transport, block, {
+      type: input.type,
+      label,
+      title: input.title,
+      body: input.body,
+      column,
+      parent: input.parent,
+      ...joinsCycle ? {
+        cycleId: async () => {
+          const cycle = await currentLinearCycle(this.ctx, transport, block);
+          noCurrentCycle = cycle === null;
+          return cycle?.id;
+        }
+      } : {}
+    });
+    let created;
+    try {
+      created = await create;
+    } catch (thrown) {
+      if (linearIssueWasCreated(thrown)) warn(thrown.details?.["key"]);
+      throw thrown;
+    }
+    warn(created.issue.key);
+    return created;
+  }
+  async moveIssue(key, column) {
+    const { ids, block } = this.discovered();
+    const resolved = resolveColumn(column, this.ctx.settings, ids, this.ctx.dadDir);
+    return moveLinearIssue(this.ctx, this.transport(), block, key, resolved);
+  }
+  async setBody(key, body) {
+    this.discovered();
+    return setLinearBody(this.ctx, this.transport(), key, body);
+  }
+  async appendBody(key, text) {
+    this.discovered();
+    return appendLinearBody(this.ctx, this.transport(), key, text);
+  }
+  async comment(key, body) {
+    this.discovered();
+    return commentOnLinearIssue(this.ctx, this.transport(), key, body);
+  }
+  async link(key, kind, target) {
+    this.discovered();
+    return linkLinearIssue(this.ctx, this.transport(), key, kind, target);
+  }
+  async sprintForIssue(key) {
+    const { ids, block } = this.discovered();
+    return sprintForLinearIssue(this.ctx, this.transport(), ids, block, key);
+  }
+  async setSprint(key, sprintName) {
+    const { block } = this.discovered();
+    return setLinearSprint(this.ctx, this.transport(), block, key, sprintName);
+  }
+  // The same answer in every configuration, so neither reads the ids file.
+  listSprintIssues() {
+    throw noNamedSprints("sprint list-issues");
+  }
+  sprintValues() {
+    throw noNamedSprints("sprint values");
+  }
+};
+
 // src/tracker/stubs.ts
 function notImplemented(name) {
   return new DadError(
@@ -10829,6 +12362,7 @@ function createTracker(ctx, override) {
       return new GitHubProvider(ctx, ctx.transport);
     }
     case "linear":
+      return new LinearProvider(ctx);
     case "jira":
       return new StubTracker(provider);
   }
@@ -10846,7 +12380,10 @@ function trackerSession(ctx) {
     dadDir: loaded.dadDir,
     stderr: ctx.io.stderr,
     // The single place a transport is built for the tracker commands.
-    transport: ghTransportFor(ctx.io)
+    transport: ghTransportFor(ctx.io),
+    // Built for every provider, as the `gh` one is: it sends nothing until a
+    // tool is listed or called, which only Linear discovery does.
+    mcp: mcpTransportFor(ctx.io, linearMcpServer(loaded.merged))
   };
   return {
     provider: createTracker(trackerContext, ctx.io.tracker),
@@ -10863,6 +12400,9 @@ function discoverPlain(ids, report, file) {
   if (block !== void 0) {
     lines.push(`project: ${block.projectOwner}/${block.projectNumber} (${block.projectId})`);
     lines.push(`status field: ${block.statusField.name}`);
+  }
+  if (ids.linear !== void 0) {
+    lines.push(`team: ${ids.linear.teamName} (${ids.linear.teamId})`);
   }
   for (const column of report.columns.matched) {
     lines.push(`column ${column.alias} \u2192 ${column.label} (${column.id})`);
@@ -10883,8 +12423,9 @@ async function discoverAndWrite(session, warn) {
   const { ids, report } = await session.provider.discover();
   const discovered = { ...ids, discoveredAt: stamp() };
   const file = writeProjectIds(session.dadDir, discovered);
+  const where = discovered.provider === "linear" ? "the Linear team" : "the repository";
   for (const type of report.issueTypes.missing) {
-    warn(`dad: the repository has no '${type.label}' label (issue type '${type.type}')`);
+    warn(`dad: ${where} has no '${type.label}' label (issue type '${type.type}')`);
   }
   const matched = new Set(report.columns.matched.map((column) => column.alias));
   const missing2 = report.columns.missing.map((column) => column.alias);
@@ -10978,13 +12519,36 @@ var INIT_FLAGS = [
     type: "string",
     value: "owner/repo",
     summary: "Where the issues live, when not the `origin` repository"
+  },
+  {
+    name: "team",
+    type: "string",
+    value: "key-or-name",
+    summary: "Linear team that holds the issues (its key or its name)"
+  },
+  {
+    name: "cycle",
+    type: "string",
+    value: "none|current",
+    summary: "Whether sprint work joins the Linear team's current cycle; default none"
   }
 ];
-function rejectGitHubFlags(ctx, provider) {
-  if (provider === "github") return;
-  for (const name of ["project", "project-owner", "issues-repo"]) {
-    if (ctx.str(name) !== void 0) {
-      throw usageError(`--${name} only applies to the github tracker, not ${provider}`, ctx.spec);
+var CYCLES = ["none", "current"];
+var TEAM_REQUIRED = "--team <key-or-name> is required for the linear tracker (or answer the prompt)";
+var PROVIDER_FLAGS = [
+  ["github", ["project", "project-owner", "issues-repo"]],
+  ["linear", ["team", "cycle"]]
+];
+function rejectForeignFlags(ctx, provider) {
+  for (const [owner, names] of PROVIDER_FLAGS) {
+    if (owner === provider) continue;
+    for (const name of names) {
+      if (ctx.str(name) !== void 0) {
+        throw usageError(
+          `--${name} only applies to the ${owner} tracker, not ${provider}`,
+          ctx.spec
+        );
+      }
     }
   }
 }
@@ -10997,7 +12561,7 @@ function parseInitFlags(ctx) {
     );
   }
   const tracker = trackerValue;
-  if (tracker !== void 0) rejectGitHubFlags(ctx, tracker);
+  if (tracker !== void 0) rejectForeignFlags(ctx, tracker);
   const projectValue = ctx.str("project");
   let project;
   if (projectValue !== void 0) {
@@ -11018,12 +12582,25 @@ function parseInitFlags(ctx) {
     }
     issuesRepo = parsed;
   }
+  const team = ctx.str("team");
+  if (team !== void 0 && team.trim() === "") {
+    throw usageError("--team must not be empty", ctx.spec);
+  }
+  const cycleValue = ctx.str("cycle");
+  if (cycleValue !== void 0 && !CYCLES.includes(cycleValue)) {
+    throw usageError(
+      `--cycle must be one of ${CYCLES.join(", ")} (got '${cycleValue}')`,
+      ctx.spec
+    );
+  }
   return {
     dir: ctx.str("dir"),
     tracker,
     project,
     projectOwner: ctx.str("project-owner"),
-    issuesRepo
+    issuesRepo,
+    team,
+    cycle: cycleValue
   };
 }
 function requireAnswerable(ctx, flags, existing) {
@@ -11036,6 +12613,9 @@ function requireAnswerable(ctx, flags, existing) {
       "--project <n> is required for the github tracker (or answer the prompt)",
       ctx.spec
     );
+  }
+  if (flags.tracker === "linear" && flags.team === void 0) {
+    throw usageError(TEAM_REQUIRED, ctx.spec);
   }
 }
 async function readOrigin(ctx, repoRoot) {
@@ -11067,6 +12647,10 @@ function ownerSuffix(github) {
   return github.projectOwner === void 0 ? "" : ` owned by ${github.projectOwner}`;
 }
 function trackerMessage(choice, prefix) {
+  if (choice.provider === "linear" && choice.linear !== void 0) {
+    const linear = choice.linear;
+    return `${prefix}: linear \u2014 team ${linear.team}` + (linear.cycle === void 0 ? "" : `, cycle ${linear.cycle}`);
+  }
   if (choice.provider !== "github" || choice.github === void 0) {
     return `${prefix}: ${choice.provider}`;
   }
@@ -11089,6 +12673,20 @@ async function chooseTracker(ctx, flags, origin) {
       );
     }
     provider = answer;
+    rejectForeignFlags(ctx, provider);
+  }
+  if (provider === "linear") {
+    let team = flags.team;
+    if (team === void 0 && interactive) {
+      team = await ask(ctx.io, "Linear team (key or name): ");
+    }
+    if (team === void 0 || team === "") throw usageError(TEAM_REQUIRED, ctx.spec);
+    const linear = {
+      team,
+      ...flags.cycle === "current" ? { cycle: flags.cycle } : {}
+    };
+    const choice2 = { provider, linear };
+    return { choice: choice2, row: okCheck("tracker", trackerMessage(choice2, "tracker")) };
   }
   if (provider !== "github") {
     const choice2 = { provider };
@@ -11164,8 +12762,30 @@ function verifyTracker(ctx, flags, settings, settingsFile) {
   if (flags.tracker !== void 0 && flags.tracker !== provider) {
     conflict(ctx, "tracker", flags.tracker, "tracker.provider", provider, settingsFile);
   }
+  rejectForeignFlags(ctx, provider);
+  if (provider === "linear") {
+    let config2;
+    try {
+      config2 = readLinearSettings(settings);
+    } catch (thrown) {
+      if (!(thrown instanceof DadError)) throw thrown;
+      return { choice: null, row: missingKeyRow("tracker", thrown, settingsFile) };
+    }
+    if (flags.team !== void 0 && flags.team !== config2.team) {
+      conflict(ctx, "team", flags.team, "tracker.linear.team", config2.team, settingsFile);
+    }
+    if (flags.cycle !== void 0 && flags.cycle !== config2.cycle) {
+      conflict(ctx, "cycle", flags.cycle, "tracker.linear.cycle", config2.cycle, settingsFile);
+    }
+    const written2 = getPath(settings, "tracker.linear.cycle");
+    const linear = {
+      team: config2.team,
+      ...written2 === "none" || written2 === "current" ? { cycle: written2 } : {}
+    };
+    const choice2 = { provider, linear };
+    return { choice: choice2, row: okCheck("tracker", trackerMessage(choice2, "tracker (from settings)")) };
+  }
   if (provider !== "github") {
-    rejectGitHubFlags(ctx, provider);
     const choice2 = { provider };
     return { choice: choice2, row: okCheck("tracker", trackerMessage(choice2, "tracker (from settings)")) };
   }
@@ -11272,13 +12892,34 @@ function resolveForge(origin, settings, settingsFile) {
     )
   };
 }
-function capabilitiesMessage(capabilities) {
+function sprintMessage(capabilities, settings) {
   const field = capabilities.sprintField;
-  const sprint = field.present ? `sprint field: ${field.name ?? "(none)"} (${field.kind})` : "no sprint field \u2014 `dad sprint set`/`list-issues` are unsupported; `for-issue` reads the sprint issue's scope table";
+  if (field.present) {
+    return { text: `sprint field: ${field.name ?? "(none)"} (${field.kind})`, degraded: false };
+  }
+  if (capabilities.provider === "linear") {
+    if (getPath(settings, "tracker.linear.cycle") !== "current") {
+      return {
+        text: "cycles: off \u2014 sprints are tracked in sprint issues; `dad sprint set`/`list-issues` are unsupported",
+        degraded: false
+      };
+    }
+    return {
+      text: "cycles: tracker.linear.cycle is 'current' but the team has no cycles \u2014 `dad sprint set`/`list-issues` are unsupported",
+      degraded: true
+    };
+  }
+  return {
+    text: "no sprint field \u2014 `dad sprint set`/`list-issues` are unsupported; `for-issue` reads the sprint issue's scope table",
+    degraded: true
+  };
+}
+function capabilitiesMessage(capabilities, settings) {
+  const sprint = sprintMessage(capabilities, settings);
   const subIssues = capabilities.subIssues === "native" ? "sub-issues: native" : "sub-issues: fallback \u2014 parent/child links use a related link plus a `Parent: <key>` line in the child's body (O-13)";
   return {
-    message: [sprint, subIssues, `columns: ${capabilities.columns.join(", ")}`].join("; "),
-    degraded: !field.present || capabilities.subIssues !== "native"
+    message: [sprint.text, subIssues, `columns: ${capabilities.columns.join(", ")}`].join("; "),
+    degraded: sprint.degraded || capabilities.subIssues !== "native"
   };
 }
 function discoverRow(outcome, settings) {
@@ -11298,9 +12939,10 @@ function discoverRow(outcome, settings) {
     );
   }
   if (types.missing.length > 0) {
+    const where = outcome.ids.provider === "linear" ? "Linear" : "the repository";
     return warnCheck(
       "discover",
-      `discovered: ${columns.matched.length}/${totalColumns} columns; labels missing: ${types.missing.map((type) => type.label).join(", ")} (create them in the repository); wrote ${file}`,
+      `discovered: ${columns.matched.length}/${totalColumns} columns; labels missing: ${types.missing.map((type) => type.label).join(", ")} (create them in ${where}); wrote ${file}`,
       { file, missing: missing2, report }
     );
   }
@@ -11321,10 +12963,24 @@ async function runDiscovery(ctx, resolved, provider) {
       settings: loaded.merged,
       dadDir: loaded.dadDir,
       stderr: ctx.io.stderr,
-      transport: ghTransportFor(ctx.io)
+      transport: ghTransportFor(ctx.io),
+      mcp: mcpTransportFor(ctx.io, linearMcpServer(loaded.merged))
     },
     ctx.io.tracker
   );
+  if (tracker instanceof StubTracker) {
+    return {
+      discover: skipped(
+        "discover",
+        `tracker provider '${provider}' is not implemented in this version; project-ids.json not written \u2014 \`dad issue\`/\`dad sprint\` are unavailable until it ships`
+      ),
+      capabilities: skipped(
+        "capabilities",
+        `not available: tracker provider '${provider}' is not implemented in this version`
+      ),
+      report: null
+    };
+  }
   let outcome;
   try {
     outcome = await discoverAndWrite(
@@ -11333,19 +12989,6 @@ async function runDiscovery(ctx, resolved, provider) {
     );
   } catch (thrown) {
     if (!(thrown instanceof DadError)) throw thrown;
-    if (thrown.code === 7 /* UNSUPPORTED */) {
-      return {
-        discover: skipped(
-          "discover",
-          `tracker provider '${provider}' is not implemented in this version; project-ids.json not written \u2014 \`dad issue\`/\`dad sprint\` are unavailable until it ships`
-        ),
-        capabilities: skipped(
-          "capabilities",
-          `not available: tracker provider '${provider}' is not implemented in this version`
-        ),
-        report: null
-      };
-    }
     return {
       discover: failCheck("discover", thrown.message, thrown.code, thrown.details),
       capabilities: skipped("capabilities", SKIP_NO_IDS),
@@ -11357,7 +13000,7 @@ async function runDiscovery(ctx, resolved, provider) {
   let capabilitiesJson = null;
   try {
     const found = await tracker.capabilities();
-    const { message, degraded } = capabilitiesMessage(found);
+    const { message, degraded } = capabilitiesMessage(found, loaded.merged);
     capabilities = degraded ? warnCheck("capabilities", message) : okCheck("capabilities", message);
     capabilitiesJson = { ...found, source: outcome.file };
   } catch (thrown) {
@@ -11373,6 +13016,16 @@ function orderChecks(rows) {
 }
 function trackerJson(choice) {
   if (choice === null) return null;
+  if (choice.provider === "linear" && choice.linear !== void 0) {
+    const linear = choice.linear;
+    return {
+      provider: "linear",
+      linear: {
+        team: linear.team,
+        ...linear.cycle === void 0 ? {} : { cycle: linear.cycle }
+      }
+    };
+  }
   if (choice.provider !== "github" || choice.github === void 0) {
     return { provider: choice.provider };
   }
@@ -11422,6 +13075,10 @@ function finish(ctx, resolved, created, rows, parts) {
   if (!ctx.out.json) ctx.io.stdout.write(`${renderTable(report)}
 `);
   throw initFailure(report);
+}
+function minimalLinear(linear) {
+  if (linear === void 0) return void 0;
+  return { team: linear.team, ...linear.cycle === "current" ? { cycle: linear.cycle } : {} };
 }
 function writeFailure(thrown) {
   if (thrown instanceof DadError) {
@@ -11493,6 +13150,7 @@ async function runInit(ctx) {
         minimalSettings({
           tracker: choice.provider,
           github: choice.github,
+          linear: minimalLinear(choice.linear),
           forge: forge.ref
         })
       );
@@ -11652,7 +13310,7 @@ function stateFlag(ctx) {
 function emitListing(ctx, result, echoed) {
   const { issues, truncated } = result;
   if (truncated) {
-    ctx.out.explain("dad: the board holds more items than one scan returns; the list is truncated");
+    ctx.out.explain(TRUNCATED_NOTICE);
   }
   const plain = issues.map(issueRow).join("\n");
   const json = { issues, count: issues.length, truncated, filter: echoed };
@@ -12014,7 +13672,7 @@ function nullableNumberAt(source, field) {
   const value = source[field];
   return typeof value === "number" ? value : null;
 }
-function stateOf(raw, what) {
+function stateOf2(raw, what) {
   if (raw === "OPEN") return "open";
   if (raw === "CLOSED") return "closed";
   if (raw === "MERGED") return "merged";
@@ -12026,7 +13684,7 @@ function stateOf(raw, what) {
 }
 function parsePullRequest(json, what = "gh pr view") {
   const source = objectOf(json, what, "pull request");
-  const state = stateOf(stringAt(source, "state", what), what);
+  const state = stateOf2(stringAt(source, "state", what), what);
   const mergeCommit = source["mergeCommit"];
   return {
     number: numberAt(source, "number", what),
@@ -12990,7 +14648,7 @@ var sprintNameFromBranchCommand = {
     }
     const capabilities = await session.provider.capabilities();
     const kind = capabilities.sprintField.kind;
-    if (kind === "none") {
+    if (kind === "none" || kind === "cycle") {
       ctx.out.emit({
         plain: slug,
         json: { branch, slug, name: slug, source: "slug", kind }
