@@ -86,7 +86,23 @@
         },
         "linear": {
           "type": "object",
-          "additionalProperties": true
+          "additionalProperties": false,
+          "properties": {
+            "team": {
+              "type": "string",
+              "minLength": 1,
+              "description": "The Linear team that holds the issues."
+            },
+            "cycle": {
+              "enum": ["none", "current"],
+              "description": "Whether sprint work joins the team's current cycle. Defaults to none."
+            },
+            "mcpUrl": {
+              "type": "string",
+              "pattern": "^https?://[^\\s/?#:]\\S*$",
+              "description": "The Linear MCP server. Defaults to https://mcp.linear.app/mcp."
+            }
+          }
         },
         "jira": {
           "type": "object",
