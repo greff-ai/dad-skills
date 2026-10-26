@@ -87,7 +87,8 @@ all-done checkpoint, child PRs, and reachable merge commits, not a local path.
 
 Leaf tokens: branch, propose, apply, test, reconcile, verify, pr, merge-test,
 archive, merge, done. Container-child tokens: plan, execute, merge-test, merge,
-done. None means no completed checkpoint.
+done. With base MAIN_BRANCH, review replaces merge, and done needs a
+confirmed human merge. None means no completed checkpoint.
 
 Leaf evidence: branch exists; propose has committed proposal/design/tasks/specs;
 apply and later have completed tasks; archive has exactly one matching archive

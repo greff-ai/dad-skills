@@ -30,7 +30,7 @@ Start with `references/shared/bootstrap.md`; commands and bodies are in
    missing values warn, while other failures propagate. Do not create children
    for needs-issue rows yet; container planning does that after scope approval.
 6. Report sprint issue URL, recorded name/date, planned items, and warnings.
-   Stop unless called by `references/sprint/run.md`.
+   Stop unless called by `references/pr/run.md`.
 
 Replanning an open sprint PR can add larger scope here. Focused changes or
 review replies use `references/sprint/update.md`. No code or branch edits

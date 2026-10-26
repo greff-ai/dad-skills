@@ -1,6 +1,6 @@
 # Run a multi-branch issue
 
-A child of a sprint, with only single-branch sub-issues.
+A child of a sprint, or a single-issue PR, with only single-branch sub-issues.
 Inputs: facts, issue, row branch/ISSUE_DIR, sprint parent branch, and optional
 halt, resume token, and PR. Use `references/shared/cli.md` and
 `references/shared/ledger.md`.
@@ -24,10 +24,13 @@ halt, resume token, and PR. Use `references/shared/cli.md` and
 | merge instructions | no |
 | container pr line | Issue PR: |
 
+From `references/pr/issue.md` it is main-parented: parent branch MAIN_BRANCH,
+autoMerge false, may ask the user yes, and merge instructions yes.
+
 ## Flow
 
-1. Require clean tree on the sprint parent, not MAIN_BRANCH. Parse the row
-   branch and view the issue: key/type must agree. Require the issue to have
+1. Require a clean tree, on the sprint parent unless main-parented. Parse the
+   row branch and view the issue: key/type must agree. Require the issue to have
    no parent (this is the only decomposition level); refresh its local mirror.
    Check a known PR for merged/closed state before any branch creation.
 2. A merged PR uses shared ledger recovery, even if its branch was deleted.
@@ -59,7 +62,8 @@ halt, resume token, and PR. Use `references/shared/cli.md` and
    Record plan, execute, merge-test, merge, done as each completes.
    Replanning on retry is idempotent; retain all prior child identities.
 7. On success return the shared child report on the sprint branch, with PR
-   and the all-done checkpoint comment URL as nested evidence. On halt publish
+   and the all-done checkpoint comment URL as nested evidence. Main-parented:
+   record review, stay on this branch, and report the PR for human merge. On halt publish
    the checkpoint and preserve local records, then return clean to the sprint.
    Preserve the last token, known PR, and exact halt. A partial issue does not
    auto-merge; its parent sprint may still continue other rows.

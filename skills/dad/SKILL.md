@@ -15,12 +15,11 @@ the selected workflow through completion or a recorded halt.
 | Report a defect | /dad-bug | `references/issue/create-bug.md` |
 | Request user-visible behavior | /dad-feature | `references/issue/create-feature.md` |
 | Track internal work | /dad-task | `references/issue/create-task.md` |
-| Plan and run a sprint | /dad-sprint | `references/sprint/run.md` |
+| Run a sprint, issues, or one issue to a PR | /dad-pr | `references/pr/run.md` |
 | Plan or extend sprint scope | /dad-sprint-plan | `references/sprint/plan.md` |
-| Run or resume a planned sprint | /dad-sprint-pr | `references/sprint/pr.md` |
-| Address sprint feedback | /dad-sprint-update | `references/sprint/update.md` |
+| Address PR feedback | /dad-pr-update | `references/pr/update.md` |
 
 Names identify workflows; use the host's supported skill invocation syntax.
 Read only the selected reference. Setup establishes prerequisites; other flows
 use the shared bootstrap before operations.
-Every code change has an issue; sprint PRs stop for human merge.
+Every code change has an issue; PRs to the main branch stop for human merge.
