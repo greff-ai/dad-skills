@@ -7,18 +7,19 @@ Inputs: bootstrap facts and resolved bindings. Use
 1. Require a clean container branch and a valid ledger. If the header records
    a PR, view it first and check head/base. If already merged, perform only
    bookkeeping recovery and return done. A closed, unmerged PR is CONFLICT.
-2. Require no pending/running rows; execute them first. If autoMerge is true,
-   every row must be done before opening the container PR. Report incomplete
+2. Require no pending/running rows; execute them first. An issue container
+   needs every row done before opening its PR. Report incomplete
    children as a halt to the parent, never merge a partial issue.
    A sprint may open with halted/blocked rows listed as not in this PR.
 3. Fetch and merge the parent branch into the container. Abort on conflicts
    and report them. Do not force, rebase, or resolve conflicts automatically.
-4. For a sprint (`autoMerge: false`), collect outstanding deferred checks from
-   every current row plan and result, then run the complete configured suite,
-   including E2E when the project has it, on the integrated branch before opening/refreshing its PR
+4. With `autoMerge: false` (a sprint or main-parented issue), collect
+   outstanding deferred checks from every current row plan and result, then
+   run the complete configured suite, including E2E when the project has it,
+   on the integrated branch before opening/refreshing its PR
    for human review. Run every deferred check outside that suite explicitly;
-   keep uncovered deferrals visible and halt if any remain. For an issue
-   container (`autoMerge: true`), reassess combined scope against its parent's
+   keep uncovered deferrals visible and halt if any remain. With
+   `autoMerge: true`, reassess combined scope against its parent's
    current test plan, apply the higher default after expansion unless a revised
    plan is operator-approved, and run planned child merge checks, not an
    unconditional full suite.

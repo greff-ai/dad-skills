@@ -31,8 +31,10 @@ Write to `{ISSUE_DIR}/pr.md`:
 - `Issue directory:` with the local working directory, not a clickable artifact.
 
 At merge, append `## Archived openspec change` with commit-pinned links to
-proposal.md, design.md, and tasks.md. A failed merge appends `## Merge issues`
-with the failure and attempted repairs. Preserve these sections on retries.
+proposal.md, design.md, and tasks.md; a single-issue PR appends it before
+review. Direct review updates append `## Review updates` with request, thread,
+and commits. A failed merge appends `## Merge issues` with the failure and
+attempted repairs. Preserve these sections on retries.
 
 ## Container
 

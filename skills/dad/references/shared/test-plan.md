@@ -1,7 +1,8 @@
 # Per-step test plans
 
-Use this policy for each container-plan row. The container issue's
-`## Test plans` section is durable. Draft each plan before its branch starts.
+Use this policy for each container-plan row, or a single issue's own plan.
+The container (or single) issue's `## Test plans` section is durable. Draft
+each plan before its branch starts.
 A needs-issue row may use its title and branch pattern; append its key and
 exact branch before dispatch.
 Keep revisions append-only by row; the latest operator-approved revision wins.
@@ -76,7 +77,8 @@ Before opening or refreshing the sprint PR for human review, run the complete
 configured suite, including E2E when available, on that branch. Run deferred checks outside
 that suite there; list outstanding deferrals until covered. Missing commands,
 failures, or unpublished evidence block review. A red PR is for failure
-inspection only. Never auto-merge MAIN_BRANCH.
+inspection only. Never auto-merge MAIN_BRANCH. A single-issue PR uses this
+final gate on its own branch.
 
 ## Examples
 

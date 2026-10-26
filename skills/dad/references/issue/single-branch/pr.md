@@ -5,6 +5,11 @@ branch, ISSUE_DIR, container branch, container's parent branch, and on retry
 the halt, last completed sub-step, and known PR. Complete this file and
 `references/issue/single-branch/merge.md` in the same context.
 
+`references/pr/issue.md` instead passes base MAIN_BRANCH as the container,
+with no parent. Then skip Start steps 1 and 4's container checks, read the
+plan from this issue, follow its Review instead of merge.md, and stay on
+this branch after a halt.
+
 Use `references/shared/cli.md` for commands,
 `references/shared/subagents.md` for workers, and
 `references/shared/ledger.md` for checkpoints and the final report.

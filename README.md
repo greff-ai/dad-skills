@@ -7,7 +7,8 @@ Dan's Agentic Development (DAD) is an agentic SDLC built on top of [OpenSpec](ht
 ```
 
 Dad creates issues, implements and tests each change, and brings completed work
-together on a sprint branch. You get a pull request to review and merge.
+together on a sprint branch. A single issue can skip the sprint and get its own
+branch off main. Either way, you get a pull request to review and merge.
 
 ## Example
 
@@ -15,7 +16,7 @@ together on a sprint branch. You get a pull request to review and merge.
 started with one command:
 
 ```text
-@dad-sprint create a flappy bird game with three.js
+@dad-pr create a flappy bird game with three.js
 ```
 
 See the implementation in [sprint PR #18](https://github.com/greff-ai/benchmark-flappy-bird/pull/18).
@@ -26,6 +27,7 @@ See the implementation in [sprint PR #18](https://github.com/greff-ai/benchmark-
 - Choose automatic execution with a final PR for review, or run steps individually
   to review and refine issues and sprint plans before implementation.
 - Supports large bugs or features that require multiple PRs
+- Run one issue straight to a PR against main, with no sprint.
 - Specs maintained by your agent using the standard [OpenSpec](https://github.com/Fission-AI/OpenSpec) workflow.
 - Pull requests with test summaries and supporting evidence.
 - Easily update sprints with follow-up work discovered during review or testing.
@@ -39,10 +41,9 @@ created issues before implementation. Use your agent's supported invocation synt
 | --- | --- |
 | dad | Route your request |
 | dad-issue, dad-bug, dad-feature, dad-task | Draft and file issues for review |
-| dad-sprint | Plan and run a sprint pr in one request |
+| dad-pr | Run a planned sprint, several issues, or one issue to a PR |
+| dad-pr-update | Address PR feedback: new issues on a sprint, direct commits on a single-issue PR |
 | dad-sprint-plan | Plan or extend a sprint before implementation |
-| dad-sprint-pr | Run or resume a planned sprint and open its PR |
-| dad-sprint-update | Address sprint review feedback through new issues |
 
 ## Install
 
@@ -53,7 +54,7 @@ npx skills@latest add https://github.com/greff-ai/dad-skills \
   --skill '*' --agent codex claude-code --copy
 ```
 
-Installs all nine skills for Codex and Claude Code, with the CLI included.
+Installs all eight skills for Codex and Claude Code, with the CLI included.
 Keep the skills together and update between workflows. Add `--global` for a
 user-wide install.
 
@@ -69,6 +70,10 @@ npx skills@latest add https://github.com/greff-ai/dad-skills \
 
 Add `--global` if you originally installed Dad user-wide. The `skills update`
 command filters by skill name or install scope, not by source repository.
+
+`dad-pr` and `dad-pr-update` replace `dad-sprint`, `dad-sprint-pr`, and
+`dad-sprint-update`. Reinstalling does not delete the retired skills, so
+remove those three skill directories from an earlier install by hand.
 
 ## Project setup
 
@@ -136,4 +141,4 @@ by editing it, between sprints:
 Branch names follow the tracker's keys (`feat/41-…` on GitHub,
 `feat/eng-41-…` on Linear), so start new branches only after switching.
 
-Release: 0.4.0
+Release: 0.5.0

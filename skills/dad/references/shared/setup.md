@@ -6,7 +6,7 @@ prerequisites; they do not install tools or reconfigure a project mid-run.
 1. Identify the target repository, preserve its existing edits, and locate
    the installed dad payload through host metadata, sibling skills, or
    DAD_SKILL_DIR. Require the bundled CLI. Use the host's supported skill
-   installer for a missing payload; install all nine skills together.
+   installer for a missing payload; install all eight skills together.
 2. Check Node, Git, the authenticated forge CLI, and OpenSpec. Initialize
    OpenSpec for the user's host when requested. Install explore, propose,
    apply, verify, and archive; the core profile may omit verify. Use a local
